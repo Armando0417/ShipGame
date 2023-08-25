@@ -10,44 +10,32 @@ class Projectiles{
         float width;
         float height;
         int speed;
-        int orientation;
+        float angle;
 
-        Projectiles(ofPoint p, int orientation) { //Constructor for projectiles 
+        Projectiles(ofPoint p, float angle) { //Constructor for projectiles 
             this->position = p;
-            this->orientation = orientation;
+            this->angle = angle ;
 
             width = 10;
             height = 20;
-            speed = 5;
+            speed = 15;
 
-            color1 = ofColor::red;
-            color2 = ofColor::blue;
+            color1 = ofColor::orange;
+            color2 = ofColor::red;
         }
 
-        void update(){ //Method to update the projectile positions
-
-            if (orientation == 0) {
-                position.y -= speed;
-            } 
-    
-            else if (orientation == 1) {
-                position.x += speed;
-            } 
-    
-            else if (orientation == 2) {
-                position.y += speed;
-            } 
-            
-            else if (orientation == 3) {
-                position.x -= speed;
-            }
-        } 
+        void update() { // Method to update the projectile positions
+            // Calculate the new position based on angle and speed
+            float vx = cos(ofDegToRad(angle)) * speed;
+            float vy = sin(ofDegToRad(angle)) * speed;
+            position.x += vx;
+            position.y += vy;
+        }
 
         void draw(){ //Method to draw the projectiles
             ofPushMatrix();
             ofTranslate(position);
-            ofRotateDeg(orientation * 90);
-
+            ofRotateDeg(angle + 90); // Rotate the projectile based on its angle
             // Draw the two ellipses with distinct colors
             ofSetColor(color1);
             ofDrawEllipse(0, 0, width, height);
@@ -56,5 +44,7 @@ class Projectiles{
             ofSetColor(ofColor::white);
             ofPopMatrix();
         }
+
+
 
 }; 

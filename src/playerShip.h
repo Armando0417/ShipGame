@@ -1,139 +1,156 @@
-    #include "ofMain.h"
-    #include "Projectile.h"
-    #include <queue>
-    #include <vector>
+#include <vector>
+#include <unordered_map>
+#include "ofMain.h"
 
-    using namespace std;
 
-    class Player{
+
+#include "Projectile.h"
+#include "HitBox.h"
+
+using namespace std;
+
+class Player{ 
+    private:
+        int health = 100;
+
+
+    //Related to movement            
+        float maxSpeed = 5;
+        float speed;
+        ofVec2f velocity;
+        float accelerationAmount; 
+        bool isMoving = false; // Flag to track if a movement key is being held
+        float damping = 0.95; // Damping factor for slowing down
+            
+
+    //Related to Rotation 
+        float rotationSpeed = 1.0; 
+        ofImage shipSprite;
+    
+    public:
+        int shipOrientation;
+        unordered_map<int, bool> keyMap;
+        vector<Projectiles> bullets;
+        ofPoint pos;
+
+        HitBox hitBox;
         
-        private:
-            int health = 100;
-            float acceleration = 5;
             
-            ofImage shipSprite;
-            queue<char> pressedKeys;
-            int shipOrientation;
+    //Parametrized Constructor for the playerShip
+        Player(int Xposition, int Yposition){
+            pos.x = Xposition;
+            pos.y = Yposition;
 
-            bool isMoving = false; // Flag to track if a movement key is being held
-            float damping = 0.95; // Damping factor for slowing down
+            velocity.set(0, 0);
+            this->shipSprite.load("bin\\data\\shipModel2.png");
+            this->shipOrientation = 0;
+            accelerationAmount = 3.0; // Adjust the value as needed
+        }
 
-        public:
-            ofPoint pos;
-            float speed;
-            ofVec2f velocity;
+    //Default Constructor
+        //Player(){ Player(ofGetWidth()/2, ofGetHeight()/2); }
 
-            vector<Projectiles> bullets;
-            
-            Player(int Xposition, int Yposition){
-                pos.x = Xposition;
-                pos.y = Yposition;
+  
+        void draw() {
+        // Draw the ship sprite with the calculated rotation
+            ofPushMatrix();
+            ofTranslate(this->pos.x, this->pos.y);
+            ofRotateDeg(shipOrientation);
+            this->shipSprite.draw(-32, -32, 64, 64); // Center the sprite at the origin
+            ofPopMatrix();
+                
+        // Draw the hitbox around the player ship
+            drawHitBox();
 
-                velocity.set(0, 0);
-                this->shipSprite.load("bin\\data\\ShipModel.png");
-                this->shipOrientation = 0;
-            }
+        };
+
+
         
-            int getHealth() {return this->health;}
-            void setHealth(int health){this->health = health;}
-            
-            
-            void draw() {
-            // Calculate the rotation angle based on the Orientation
-                float rotationAngle = 0.0f;
-                if (shipOrientation == 1) {
-                    rotationAngle = 90.0f;
-                } 
-                else if (shipOrientation == 2) {
-                    rotationAngle = 180.0f;
-                } 
-                else if (shipOrientation == 3) {
-                    rotationAngle = 270.0f;
-                }
+    void drawHitBox() {
+    // Calculate hitbox dimensions
+    float hitboxWidth = shipSprite.getWidth() * 0.5; // Make the hitbox 20% wider than the ship
+    float hitboxHeight = shipSprite.getHeight() * 0.3; // Make the hitbox 20% taller than the ship
+    float hitboxX = pos.x - hitboxWidth / 2;
+    float hitboxY = pos.y - hitboxHeight / 2;
 
-            // Draw the ship sprite with the calculated rotation
-                ofPushMatrix();
-                ofTranslate(this->pos.x, this->pos.y);
-                ofRotateDeg(rotationAngle);
-                this->shipSprite.draw(-32, -32, 64, 64); // Center the sprite at the origin
-                ofPopMatrix();
-            };
+    // Set the color to red for the rectangle's outline
+    ofSetColor(ofColor::red);
+    // Draw a hollow rectangle around the hitbox
+    ofNoFill(); // Set to no fill to make it hollow
+    ofDrawRectangle(hitboxX, hitboxY, hitboxWidth, hitboxHeight);
+    ofFill(); // Reset fill mode
+    ofSetColor(ofColor::white); 
+}
 
 
-            void update(){
-                // Update velocity based on pressed keys and orientation
-                if (!pressedKeys.empty()) {
-                    char keyPressed = pressedKeys.front();
-                    movement(keyPressed);
-                    pressedKeys.pop();
-                }
 
-                // Update position based on velocity
-                pos += velocity;
 
-                // Add damping to slow down the ship
-                velocity *= 0.95;
+        void update() {
+            // Process the pressed keys and calculate orientation change
+            processPressedKeys();
+            // Limit the velocity to the maximum speed
+            velocity.limit(maxSpeed);
+            // Update position based on velocity
+            pos += velocity;
+            // Apply damping to slow down the ship
+            velocity *= damping;
+            // Draw the ship
+            draw();
+        }
 
-                // Draw the ship
-                draw();
-            }
+        
+        void shoot(){ 
+            Projectiles p = Projectiles(ofPoint(this->pos.x, this->pos.y), this->shipOrientation);
+            this->bullets.push_back(p);
+        }
 
+    
     //Section for movement ------------------------------------------       
         
-        // Function to add a pressed key to the queue
-            void addPressedKey(char key) {
-                pressedKeys.push(key);
-                isMoving = true; // Set the movement flag
+    // Function to add a pressed key to the queue
+        void addPressedKey(int key) {
+            keyMap[key] = true;
+            isMoving = true; // Set the movement flag
+        }
+
+    //Function that will process if the value of the keys inside the Map are being pressed
+        void processPressedKeys() {
+            if(keyMap['w']) movement('w');
+            if(keyMap['s']) movement('s');
+            if(keyMap['d']) movement('d');
+            if(keyMap['a']) movement('a');
+
+            if (!isMoving) {
+                // Apply damping to gradually slow down the ship when no keys are being pressed
+                velocity *= damping; 
             }
-
-        //Function to process the keys inside the queue
-            void processPressedKeys() {
-                while (!pressedKeys.empty()) {
-                    char keyPressed = pressedKeys.front();
-                    pressedKeys.pop();
-                    movement(keyPressed);
-                }
-
-                if (!isMoving) {
-                    // Apply damping to gradually slow down the ship when no keys are being pressed
-                    velocity *= damping; 
-                }
-                isMoving = false; // Reset the movement flag
-            }   
-
-
-
-        //Function that will handle the movement for the ship
+        }   
+        
+    // Function that will handle the movement for the ship
         void movement(char keyPressed) {
-            // Calculate the force vector based on the pressed key and ship orientation
-            ofVec2f force;
+            ofVec2f acceleration;
+
             if (keyPressed == 'w') {
-                force.set(0, -acceleration);
-                shipOrientation = 0; // Set orientation to up
-            }
-            if (keyPressed == 'a') {
-                force.set(-acceleration, 0);
-                shipOrientation = 3; // Set orientation to left
+                // Apply acceleration in the direction of the ship's orientation
+                acceleration.set(cos(ofDegToRad(shipOrientation)) * accelerationAmount, sin(ofDegToRad(shipOrientation)) * accelerationAmount);
             }
             if (keyPressed == 's') {
-                force.set(0, acceleration);
-                shipOrientation = 2; // Set orientation to down
-            }
-            if (keyPressed == 'd') {
-                force.set(acceleration, 0);
-                shipOrientation = 1; // Set orientation to right
+                // Apply acceleration in the opposite direction of the ship's orientation
+                acceleration.set(-cos(ofDegToRad(shipOrientation)) * accelerationAmount, -sin(ofDegToRad(shipOrientation)) * accelerationAmount);
             }
 
             // Apply force to velocity
-            velocity += force;
-        }
+            velocity += acceleration;
         
-
-    //Section for shooting ------------------------------------------
-        
-            void shoot(){ 
-                Projectiles p  = Projectiles(ofPoint(this->pos.x, this->pos.y), this->shipOrientation);
-                this->bullets.push_back(p);
+            if (keyPressed == 'a') {
+                // Rotate the ship counterclockwise
+                shipOrientation -= rotationSpeed;
             }
-            
-    };
+            if (keyPressed == 'd') {
+                // Rotate the ship clockwise
+                shipOrientation += rotationSpeed;
+            }
+        }
+
+    
+};

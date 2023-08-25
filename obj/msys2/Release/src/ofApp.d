@@ -311,7 +311,9 @@ obj/msys2/Release/src/ofApp.o: \
  C:/Users/Public/of_v0.11.2_msys2_mingw32_release/libs/openFrameworks/3d/ofCamera.h \
  C:/Users/Public/of_v0.11.2_msys2_mingw32_release/libs/openFrameworks/3d/ofEasyCam.h \
  C:/Users/Public/of_v0.11.2_msys2_mingw32_release/apps/myApps/ShipGame/src/playerShip.h \
- C:/Users/Public/of_v0.11.2_msys2_mingw32_release/apps/myApps/ShipGame/src/Projectile.h
+ C:/Users/Public/of_v0.11.2_msys2_mingw32_release/apps/myApps/ShipGame/src/Projectile.h \
+ C:/Users/Public/of_v0.11.2_msys2_mingw32_release/apps/myApps/ShipGame/src/HitBox.h \
+ C:/Users/Public/of_v0.11.2_msys2_mingw32_release/apps/myApps/ShipGame/src/enemy.h
 C:/Users/Public/of_v0.11.2_msys2_mingw32_release/apps/myApps/ShipGame/src/ofApp.h:
 C:/Users/Public/of_v0.11.2_msys2_mingw32_release/libs/openFrameworks/ofMain.h:
 C:/Users/Public/of_v0.11.2_msys2_mingw32_release/libs/openFrameworks/utils/ofConstants.h:
@@ -624,3 +626,5 @@ C:/Users/Public/of_v0.11.2_msys2_mingw32_release/libs/openFrameworks/3d/ofCamera
 C:/Users/Public/of_v0.11.2_msys2_mingw32_release/libs/openFrameworks/3d/ofEasyCam.h:
 C:/Users/Public/of_v0.11.2_msys2_mingw32_release/apps/myApps/ShipGame/src/playerShip.h:
 C:/Users/Public/of_v0.11.2_msys2_mingw32_release/apps/myApps/ShipGame/src/Projectile.h:
+C:/Users/Public/of_v0.11.2_msys2_mingw32_release/apps/myApps/ShipGame/src/HitBox.h:
+C:/Users/Public/of_v0.11.2_msys2_mingw32_release/apps/myApps/ShipGame/src/enemy.h:

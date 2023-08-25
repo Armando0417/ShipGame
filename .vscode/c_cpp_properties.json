@@ -9,7 +9,9 @@
                 "C:\\msys64\\mingw32\\include\\**",
                 "C:\\msys64\\mingw32\\i686-w64-mingw32",
                 "C:/Users/Public/of_v0.11.2_msys2_mingw32_release/libs/openFrameworks",
-                "C:/Users/Public/of_v0.11.2_msys2_mingw32_release/libs/tess2/include"
+                "C:/Users/Public/of_v0.11.2_msys2_mingw32_release/libs/tess2/include",
+                "C:/Users/Public/of_v0.11.2_msys2_mingw32_release/libs/openFrameworks/events",
+                "${workspaceFolder}/src"
             ],
             "defines": [
                 "_DEBUG",

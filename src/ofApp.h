@@ -2,13 +2,25 @@
 
 #include "ofMain.h"
 #include "playerShip.h"
+#include "enemy.h"
 #include <string>
+#include <cstdlib> 
 
 using namespace std;
 
 class ofApp : public ofBaseApp{
-
 	public:
+
+
+
+
+
+
+
+
+
+
+
 		void setup();
 		void update();
 		void draw();
@@ -33,13 +45,45 @@ class ofApp : public ofBaseApp{
 		
 		void updateBullets();
 		void draw_bullets();
+
+		void updateBullets(Player &ship);
+		void draw_bullets(Player &ship);
+
 		bool bulletIsOutOfBounds(Projectiles p);
 		bool shipIsOutOfBounds(Player ship);
 		
 		Player* playerP; //Player ship pointer
+		EnemyShip* enemyP; //Pointer towards the enemy ships
+
+		void spawnEnemies();
+
+		double speedPicker();
+
+
 		bool shot; //Flag to know if player has shot (to draw bullets)
 		
 		bool canShoot; //Flag to allow the player ship to shoot again
 		int timer; //Has to start when i click la tecla de space AND canShoot = true
+		int enemyTimer; //Timer for the enemy spawns
+		void shotTimer(int time);
+		bool spawnTimer(int time);
+
+		bool useFirstShip;
+		bool useSecondShip;
+
+
+		vector<EnemyShip*> enemyList;
+		vector<double> difSpeeds;
+
+
+		bool playerAlive;
+
+
+
+
+
+
+
+
 
 };
