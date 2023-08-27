@@ -2,31 +2,17 @@
 
 //--------------------------------------------------------------
 
-/*
-Periodically voy a create un enemy y voy a place them in a vector
-then iterate through the vector and draw and update them
-
-
-
-*/
 void ofApp::setup(){
-    
+    ofSetFrameRate(60);
+
     this->playerP = new Player(ofGetWidth()/2, ofGetHeight()/2);
-    
-    useFirstShip = true;
-    useSecondShip = false;
-
-    this->enemyP = new EnemyShip(ofGetWidth()/4, ofGetHeight()/4, 2.5);
-
-
     enemyTimer = 0;
 
-
-
+    shipDestroyed.load("bin\\data\\Sounds\\shipExplosion.wav");
 }
 
-
 //--------------------------------------------------------------
+
 ofVec2f getRandomEdgePoint() {
     int edge = ofRandom(4);  // Select a random edge (0: top, 1: right, 2: bottom, 3: left)
     float x, y;
@@ -48,111 +34,90 @@ ofVec2f getRandomEdgePoint() {
     return ofVec2f(x, y);
 }
 
-
-
-
-void ofApp::shotTimer(int time){
-    if(!canShoot) this->timer += 1;
-
-    if(this->timer == time) this->canShoot = true;
-}
-
-
-
-
-//--------------------------------------------------------------
-
 void ofApp::update(){
+
+//Enemy spawn logic
     enemyTimer += 1;
     if(enemyTimer % 100 == 0 && enemyList.size() < 10){
         ofPoint randPosition = getRandomEdgePoint();
-        EnemyShip* tempEnemy = new EnemyShip(randPosition.x, randPosition.y, 5.0);
+        EnemyShip* tempEnemy = new EnemyShip(randPosition.x, randPosition.y, 2.5);
         enemyList.push_back(tempEnemy);
         enemyTimer = 0;
     }
-    
-    if(useFirstShip){
-        this->playerP->processPressedKeys();
-        this->playerP->update();
-        wrapCoords(this->playerP->pos);
-    }
 
+//Movement logic for player 
+    this->playerP->processPressedKeys();
+    this->playerP->update();
+    wrapCoords(this->playerP->pos);
+
+
+//Movement and hit detection for enemies
     for(int i = 0; i < enemyList.size(); i++){
         EnemyShip* enemy = enemyList[i];
         enemy->update(this->playerP->pos);
         int index = i;
         for(Projectiles p : this->playerP->bullets){
             if(enemy->enemyHitBox.isHit(p)){
+                playerP->health = playerP->health + 5; 
                 enemyList.erase(enemyList.begin() + index);
+                shipDestroyed.play();
             }
         }
 
     }
 
 
-if(useFirstShip){
-    if(this->playerP->bullets.size() > 0){
-        updateBullets();
-    }
-}
-
+// Section for Updating bullets:
+    //player projectiles
+    if(this->playerP->bullets.size() > 0) updateBullets(); 
     shotTimer(10);
 
-
+    //enemy projectiles
+    for(EnemyShip* enemy : enemyList){
+        enemy->shotTimer++;
+        updateEnemyBullets(enemy);
+        for(Projectiles p : enemy->enemyBullets){
+            if(playerP->hitBox.isHit(p)){
+                playerP->health = playerP->health - 10;
+            }
+        }
+    }
 
 }
 
 //--------------------------------------------------------------
 
 void ofApp::draw(){
-    ofBackground(0);
+    ofBackground(0); //set the screen to black
 
-    if(shot){
-        if(useFirstShip) draw_bullets();
-    }
+    if(shot) draw_bullets();
 
-
-    playerP->draw();
-    enemyP->draw();
+    playerP->draw();    
 
     for(EnemyShip* eShip : enemyList){
         eShip->draw();
+        if(eShip->enemyBullets.size() > 0){
+            drawEnemyBullets(eShip);
+        }
     }
 
+    healthBar(this->playerP->health, 100);
 
-    string timerString = to_string(this->timer);
-    ofDrawBitmapString(timerString, 10, 10);
-    string orientation = to_string(playerP->shipOrientation);
-    
-    ofDrawBitmapString(orientation, 20, 20);
 }
 
 //--------------------------------------------------------------
 
 void ofApp::keyPressed(int key){
-    if(useFirstShip) this->playerP->addPressedKey(key);
+    this->playerP->addPressedKey(key); //adds the key to the vector to handle the movement
     
     if(key == ' '){
         if(canShoot){
-            if(useFirstShip) playerP->shoot();
-
-
-
-            this->shot = true;
-            this->canShoot = false;
-            this->timer = 0;
+            playerP->shoot();
+            this->shot = true; //set to true to draw the bullets
+            this->canShoot = false; //set to false to start the timer
+            this->timer = 0; //starts the timer with a value of 0
+            }
         }
-        
-    }
-
-    if(key == '1'){
-        useFirstShip = true;
-        useSecondShip = false;
-    }
-    if(key == '2'){
-        useFirstShip = false;
-        useSecondShip = true;
-    }
 
 }
 
@@ -208,55 +173,33 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 //--------------------------------------------------------------
 
 void ofApp::windowResized(int w, int h) {
-    // Implement if needed, or leave empty
+
 }
 
 //--------------------------------------------------------------
 
 void ofApp::gotMessage(ofMessage msg) {
-    // Implement if needed, or leave empty
+
 }
 
 
+//-------------------- Section for added utility methods -------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void ofApp::healthBar(int currHealth, int maxHealth){ 
+    ofNoFill();
+    ofDrawRectangle(10, 40, maxHealth *2, 20);
+    ofFill();
+    ofSetColor(ofColor::green);
+    ofDrawRectangle(10, 40, currHealth *2, 20);
+    ofSetColor(ofColor::white);
+}
 
 void ofApp::wrapCoords(ofPoint &currentPos){
-
     if(currentPos.x < 0.0) currentPos.x = ofGetWidth() - 10;
-    
     if(currentPos.x >= ofGetWidth()) currentPos.x = 10;
-    
-    if(currentPos.y < 0.0) currentPos.y = ofGetHeight() - 10;
-    
+    if(currentPos.y < 0.0) currentPos.y = ofGetHeight() - 10;    
     if(currentPos.y >= ofGetHeight()) currentPos.y = 10;
-    
-
-
 }
-
 
 bool ofApp::bulletIsOutOfBounds(Projectiles p){
     // Check if the Projectile's position is outside the screen bounds
@@ -265,22 +208,6 @@ bool ofApp::bulletIsOutOfBounds(Projectiles p){
     }
     return false; // Bullet is within bounds
 }
-
-//--------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void ofApp::updateBullets() {
     for (unsigned int i = 0; i < this->playerP->bullets.size(); i++) {
@@ -292,6 +219,15 @@ void ofApp::updateBullets() {
     }
 }
 
+void ofApp::updateEnemyBullets(EnemyShip* enemy){
+    for (unsigned int i = 0; i < enemy->enemyBullets.size(); i++) {
+       enemy->enemyBullets[i].update();
+
+        if (bulletIsOutOfBounds(enemy->enemyBullets[i])) {
+            enemy->enemyBullets.erase(enemy->enemyBullets.begin() + i);
+        }
+    }
+}
 
 void ofApp::draw_bullets() {
     for (unsigned int i = 0; i < this->playerP->bullets.size(); i++) {
@@ -299,21 +235,15 @@ void ofApp::draw_bullets() {
     }
 }
 
-//--------------------------------------------------------------
-
-void ofApp::updateBullets(Player &ship) {
-    for (unsigned int i = 0; i < ship.bullets.size(); i++) {
-       ship.bullets[i].update();
-
-        if (bulletIsOutOfBounds(ship.bullets[i])) {
-            ship.bullets.erase(ship.bullets.begin() + i);
-        }
+void ofApp::drawEnemyBullets(EnemyShip* enemy){
+    for(Projectiles p : enemy->enemyBullets){
+        p.draw();
     }
 }
 
+void ofApp::shotTimer(int time){
+    if(!canShoot) this->timer += 1;
 
-void ofApp::draw_bullets(Player &ship) {
-    for (unsigned int i = 0; i < ship.bullets.size(); i++) {
-        ship.bullets[i].draw();
-    }
+    if(this->timer == time) this->canShoot = true;
 }
+

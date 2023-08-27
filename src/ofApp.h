@@ -10,21 +10,10 @@ using namespace std;
 
 class ofApp : public ofBaseApp{
 	public:
-
-
-
-
-
-
-
-
-
-
-
+	//Main ofApp methods
 		void setup();
 		void update();
 		void draw();
-
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
@@ -36,54 +25,34 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-		
-		void wrapCoordinates(float ix, float iy, float &ox, float &oy);
-		
-		void wrapCoords(ofPoint &currentPos);
-		
-		
+
+//-----Section for utility methods and variables for overall game logic----------------	
+ 
+		bool shipIsOutOfBounds(Player ship);
+		void wrapCoords(ofPoint &currentPos); //Method to always keep a ship inside the screen	
 		
 		void updateBullets();
 		void draw_bullets();
+		
+		void drawEnemyBullets(EnemyShip* enemy);
+		void updateEnemyBullets(EnemyShip* enemy);
 
-		void updateBullets(Player &ship);
-		void draw_bullets(Player &ship);
-
-		bool bulletIsOutOfBounds(Projectiles p);
-		bool shipIsOutOfBounds(Player ship);
+		bool bulletIsOutOfBounds(Projectiles p); //Method to handle the many projectiles that will be shot
 		
 		Player* playerP; //Player ship pointer
-		EnemyShip* enemyP; //Pointer towards the enemy ships
 
-		void spawnEnemies();
-
-		double speedPicker();
-
+		int enemyTimer; //Timer for the enemy spawns
 
 		bool shot; //Flag to know if player has shot (to draw bullets)
-		
 		bool canShoot; //Flag to allow the player ship to shoot again
-		int timer; //Has to start when i click la tecla de space AND canShoot = true
-		int enemyTimer; //Timer for the enemy spawns
+		int timer;
 		void shotTimer(int time);
-		bool spawnTimer(int time);
-
-		bool useFirstShip;
-		bool useSecondShip;
-
 
 		vector<EnemyShip*> enemyList;
-		vector<double> difSpeeds;
 
+		ofSoundPlayer shipDestroyed;
 
-		bool playerAlive;
-
-
-
-
-
-
-
-
+	//Method to display HealthBars
+		void healthBar(int currHealth, int maxHealth); 
 
 };

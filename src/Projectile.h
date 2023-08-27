@@ -6,25 +6,37 @@ class Projectiles{
 
     public:
         ofPoint position;
+        ofSoundPlayer shootingSound;
         ofColor color1, color2;
         float width;
         float height;
         int speed;
         float angle;
 
-        Projectiles(ofPoint p, float angle) { //Constructor for projectiles 
+    //Constructor for projectiles 
+        Projectiles(ofPoint p, float angle) { 
             this->position = p;
             this->angle = angle ;
+            width = 7;
+            height = 12;
+            speed = 10; //Modify this to change all projectile speeds
 
-            width = 10;
-            height = 20;
-            speed = 15;
-
-            color1 = ofColor::orange;
-            color2 = ofColor::red;
+            shootingSound.load("bin\\data\\Sounds\\shootingSound.MP3");
+            shootingSound.setVolume(0.5);
         }
 
-        void update() { // Method to update the projectile positions
+
+        void shotSound(){
+            shootingSound.play();
+        }
+
+        void setColors(ofColor c1, ofColor c2){
+            this->color1 = c1;
+            this->color2 = c2;
+        }
+
+    // Method to update the projectile positions
+        void update() { 
             // Calculate the new position based on angle and speed
             float vx = cos(ofDegToRad(angle)) * speed;
             float vy = sin(ofDegToRad(angle)) * speed;
@@ -32,14 +44,16 @@ class Projectiles{
             position.y += vy;
         }
 
-        void draw(){ //Method to draw the projectiles
+     //Method to draw the projectiles
+        void draw(){
             ofPushMatrix();
             ofTranslate(position);
-            ofRotateDeg(angle + 90); // Rotate the projectile based on its angle
+            ofRotateDeg(angle + 90); // Rotate the projectile based on its angle + 90 degrees to rotate in the appropriate orientation
+            
             // Draw the two ellipses with distinct colors
-            ofSetColor(color1);
+            ofSetColor(color1); //This color is for the tail of the projectile
             ofDrawEllipse(0, 0, width, height);
-            ofSetColor(color2);
+            ofSetColor(color2); //This color is the main color of the projectile
             ofDrawEllipse(0, -height / 2, width, height);
             ofSetColor(ofColor::white);
             ofPopMatrix();

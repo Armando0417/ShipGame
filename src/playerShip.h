@@ -11,9 +11,6 @@ using namespace std;
 
 class Player{ 
     private:
-        int health = 100;
-
-
     //Related to movement            
         float maxSpeed = 5;
         float speed;
@@ -22,86 +19,71 @@ class Player{
         bool isMoving = false; // Flag to track if a movement key is being held
         float damping = 0.95; // Damping factor for slowing down
             
-
     //Related to Rotation 
         float rotationSpeed = 1.0; 
         ofImage shipSprite;
     
     public:
-        int shipOrientation;
-        unordered_map<int, bool> keyMap;
+        int health = 100; //Needed in public for ease of use and direct access
+        int shipOrientation; 
+        unordered_map<int, bool> keyMap; //A Map is used to handle the keys pressed
         vector<Projectiles> bullets;
         ofPoint pos;
-
         HitBox hitBox;
-        
-            
+    
     //Parametrized Constructor for the playerShip
         Player(int Xposition, int Yposition){
             pos.x = Xposition;
             pos.y = Yposition;
-
             velocity.set(0, 0);
             this->shipSprite.load("bin\\data\\shipModel2.png");
             this->shipOrientation = 0;
             accelerationAmount = 3.0; // Adjust the value as needed
+
+            hitBox =  HitBox(pos, shipSprite.getWidth() * 0.25, shipSprite.getHeight() * 0.15);
         }
-
-    //Default Constructor
-        //Player(){ Player(ofGetWidth()/2, ofGetHeight()/2); }
-
   
+    //Main method to draw the playerShip
         void draw() {
         // Draw the ship sprite with the calculated rotation
             ofPushMatrix();
             ofTranslate(this->pos.x, this->pos.y);
             ofRotateDeg(shipOrientation);
-            this->shipSprite.draw(-32, -32, 64, 64); // Center the sprite at the origin
+            this->shipSprite.draw(-20, -20, 45, 45);
             ofPopMatrix();
                 
-        // Draw the hitbox around the player ship
-            drawHitBox();
-
+        // Draw the hitbox around the player ship. Uncomment this line for testing purposes
+        // this->hitBox.draw();
         };
 
-
-        
-    void drawHitBox() {
-    // Calculate hitbox dimensions
-    float hitboxWidth = shipSprite.getWidth() * 0.5; // Make the hitbox 20% wider than the ship
-    float hitboxHeight = shipSprite.getHeight() * 0.3; // Make the hitbox 20% taller than the ship
-    float hitboxX = pos.x - hitboxWidth / 2;
-    float hitboxY = pos.y - hitboxHeight / 2;
-
-    // Set the color to red for the rectangle's outline
-    ofSetColor(ofColor::red);
-    // Draw a hollow rectangle around the hitbox
-    ofNoFill(); // Set to no fill to make it hollow
-    ofDrawRectangle(hitboxX, hitboxY, hitboxWidth, hitboxHeight);
-    ofFill(); // Reset fill mode
-    ofSetColor(ofColor::white); 
-}
-
-
-
-
+    /*
+        Main method to update the playerShip. It handles the movement indirectly by calling processPressedKeys(), and updates the position.
+        This is the brain of the class.
+    */
         void update() {
-            // Process the pressed keys and calculate orientation change
-            processPressedKeys();
-            // Limit the velocity to the maximum speed
-            velocity.limit(maxSpeed);
-            // Update position based on velocity
-            pos += velocity;
-            // Apply damping to slow down the ship
-            velocity *= damping;
-            // Draw the ship
-            draw();
+            processPressedKeys();  // Process the pressed keys and calculate orientation change
+
+            velocity.limit(maxSpeed); // Limit the velocity to the maximum speed
+            
+            pos += velocity; // Update position based on velocity
+            this->hitBox.box.setPosition(pos.x - 15, pos.y - 15);
+            
+            velocity *= damping; // Apply damping to slow down the ship
+
+            draw();  // Draw the ship
+
+            if(health > 100) health = 100; //small check to mantain the player health capped at 100.
         }
 
-        
+    /*
+        Method to generate the projectiles. It creates a projectile object 
+        and places it into the bullets vector.  
+    */
         void shoot(){ 
             Projectiles p = Projectiles(ofPoint(this->pos.x, this->pos.y), this->shipOrientation);
+            p.setColors(ofColor::azure, ofColor::blueViolet);
             this->bullets.push_back(p);
+            p.shotSound();
         }
 
     
