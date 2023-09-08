@@ -28,7 +28,6 @@ class ofApp : public ofBaseApp{
 
 //-----Section for utility methods and variables for overall game logic----------------	
  
-		bool shipIsOutOfBounds(Player ship);
 		void wrapCoords(ofPoint &currentPos); //Method to always keep a ship inside the screen	
 		
 		void updateBullets();
