@@ -1,25 +1,28 @@
 #include "IntroState.h"
 
 IntroState::IntroState(){
-    setNextState( "ShipBattle" );
+  //TODO show the intro screen for the game
 
 }
 
 void IntroState::update(){
 
 
-
 }
 
 
 void IntroState::draw(){
-    ofSetBackgroundColor(ofColor::black);
+    ofSetBackgroundColor(ofColor::white);
 }
 
 
-void IntroState::keyPress(int key){
-    setNextState("ShipBattle");
-    setFinished(true);
+void IntroState::keyPressed(int key){
+    this->setNextState("BattleState");
+    this->setFinished(true);
+}
+
+void IntroState::keyReleased(int key){
+    
 }
 
 void IntroState::reset(){

@@ -1,8 +1,11 @@
 #pragma once
 
 #include "ofMain.h"
-#include "playerShip.h"
-#include "enemy.h"
+// #include "playerShip.h"
+// #include "enemy.h"
+#include "State.h"
+#include "ShipBattle.h"
+#include "introState.h"
 #include <string>
 #include <cstdlib> 
 
@@ -26,32 +29,11 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-//-----Section for utility methods and variables for overall game logic----------------	
- 
-		void wrapCoords(ofPoint &currentPos); //Method to always keep a ship inside the screen	
-		
-		void updateBullets();
-		void draw_bullets();
-		
-		void drawEnemyBullets(EnemyShip* enemy);
-		void updateEnemyBullets(EnemyShip* enemy);
+//-----Section for added / utility methods and variables for overall game logic----------------	
+	//States:
+		State *currentState;
+		IntroState *intro;
+		ShipBattle *battle;
 
-		bool bulletIsOutOfBounds(Projectiles p); //Method to handle the many projectiles that will be shot
-		
-		Player* playerP; //Player ship pointer
-
-		int enemyTimer; //Timer for the enemy spawns
-
-		bool shot; //Flag to know if player has shot (to draw bullets)
-		bool canShoot; //Flag to allow the player ship to shoot again
-		int timer;
-		void shotTimer(int time);
-
-		vector<EnemyShip*> enemyList;
-
-		ofSoundPlayer shipDestroyed;
-
-	//Method to display HealthBars
-		void healthBar(int currHealth, int maxHealth); 
 
 };

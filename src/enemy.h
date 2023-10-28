@@ -45,7 +45,7 @@ class EnemyShip {
             ofPopMatrix();
             
             //Uncomment this if you want to see the hitbox for the enemies
-            //enemyHitBox.draw();
+                //enemyHitBox.draw();
         }
 
 

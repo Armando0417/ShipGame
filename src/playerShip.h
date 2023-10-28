@@ -18,9 +18,13 @@ class Player{
         float accelerationAmount; 
         bool isMoving = false; // Flag to track if a movement key is being held
         float damping = 0.95; // Damping factor for slowing down
+
+        float lastShotTime;
+        float shotCooldown;
+
             
     //Related to Rotation 
-        float rotationSpeed = 1.0; 
+        float rotationSpeed = 2.0; 
         ofImage shipSprite;
     
     public:
@@ -38,9 +42,17 @@ class Player{
             velocity.set(0, 0);
             this->shipSprite.load("bin\\data\\shipModel2.png");
             this->shipOrientation = 0;
-            accelerationAmount = 3.0; // Adjust the value as needed
+            accelerationAmount = 5.0; // Adjust the value as needed
 
             hitBox =  HitBox(pos, shipSprite.getWidth() * 0.25, shipSprite.getHeight() * 0.15);
+            
+            lastShotTime = 0;
+            shotCooldown = 0.25;  // Set the cooldown duration to 0.5 seconds (adjust as needed)
+
+        }
+
+        Player(){
+            Player(ofGetWidth()/2, ofGetHeight()/2);
         }
   
     //Main method to draw the playerShip
@@ -80,10 +92,24 @@ class Player{
         and places it into the bullets vector.  
     */
         void shoot(){ 
-            Projectiles p = Projectiles(ofPoint(this->pos.x, this->pos.y), this->shipOrientation);
-            p.setColors(ofColor::azure, ofColor::blueViolet);
-            this->bullets.push_back(p);
-            p.shotSound();
+            // Projectiles p = Projectiles(ofPoint(this->pos.x, this->pos.y), this->shipOrientation);
+            // p.setColors(ofColor::azure, ofColor::blueViolet);
+            // this->bullets.push_back(p);
+            // p.shotSound();
+
+        // Calculate the current time
+            float currentTime = ofGetElapsedTimef();
+
+        // Check if enough time has passed since the last shot
+            if (currentTime - lastShotTime >= shotCooldown) {
+                Projectiles p = Projectiles(ofPoint(this->pos.x, this->pos.y), this->shipOrientation);
+                p.setColors(ofColor::azure, ofColor::blueViolet);
+                this->bullets.push_back(p);
+                p.shotSound();
+
+                // Update the last shot time to the current time
+                lastShotTime = currentTime;
+            }
         }
 
     
@@ -102,6 +128,11 @@ class Player{
             if(keyMap['d']) movement('d');
             if(keyMap['a']) movement('a');
 
+            if(keyMap[' ']) {
+                shoot();
+                // keyMap[' '] = false;
+            }
+            
             if (!isMoving) {
                 // Apply damping to gradually slow down the ship when no keys are being pressed
                 velocity *= damping; 

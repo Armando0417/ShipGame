@@ -46,6 +46,7 @@ void ShipBattle::update(){
     wrapCoords(this->player->pos);
 
 
+
 //Movement and hit detection for enemies
     for(int i = 0; i < enemyList.size(); i++){
         EnemyShip* enemy = enemyList[i];
@@ -53,7 +54,12 @@ void ShipBattle::update(){
         int index = i;
         for(Projectiles p : this->player->bullets){
             if(enemy->enemyHitBox.isHit(p)){
-                player->health = player->health + 5; 
+                if(player->health + 5 >= 100){
+                    player->health = 100;    
+                }
+                else{
+                    player->health = player->health + 5; 
+                }
                 enemyList.erase(enemyList.begin() + index);
                 shipDestroyed.play();
             }
@@ -64,7 +70,7 @@ void ShipBattle::update(){
     //player projectiles
     if(this->player->bullets.size() > 0) {
         updateBullets();
-        } 
+    } 
     shotTimer(10);
 
     //enemy projectiles
@@ -73,11 +79,25 @@ void ShipBattle::update(){
         updateEnemyBullets(enemy);
         for(Projectiles p : enemy->enemyBullets){
             if(player->hitBox.isHit(p)){
-                player->health = player->health - 10;
+                if(player->health > 0){
+                    if(player->health < 10){
+                        player->health -= player->health;
+                    }
+                    else{
+                        player->health = player->health - 10;
+
+                    }
+                }
             }
         }
     }
 
+//Section for switching states:
+    if(this->player->health <= 0){
+        //@TODO add logic for releasing memory allocation
+        this->setNextState("IntroState");
+        this->setFinished(true);
+    }
 
 
 }
@@ -87,7 +107,8 @@ void ShipBattle::shotTimer(int time){
     if(this->timer == time) this->canShoot = true;
 }
 
-void ShipBattle:: draw(){
+void ShipBattle::draw(){
+    ofSetBackgroundColor(ofColor::black);
     player->draw();
     if(shot) draw_bullets();
     for(EnemyShip* e : enemyList){
@@ -96,6 +117,8 @@ void ShipBattle:: draw(){
             drawEnemyBullets(e);
         }
     }
+
+    healthBar(player->health, 100);
 }   
 
 void ShipBattle::reset(){
@@ -103,15 +126,16 @@ void ShipBattle::reset(){
 
 }
 
-void ShipBattle::keyPress(int key){
-    if(key == OF_KEY_ESC){
-        setNextState("PauseState");
-        setFinished(true);
-    }
-    
+void ShipBattle::keyPressed(int key){
+        player->addPressedKey(key);
+        // if(key == ' '){
+        //     player->shoot();
+        // }
 }
 
-
+void ShipBattle::keyReleased(int key){
+       this->player->keyMap[key] = false;
+}
 
 void ShipBattle::wrapCoords(ofPoint &currentPos){
     if(currentPos.x < 0.0) 

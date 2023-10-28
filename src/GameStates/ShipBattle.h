@@ -3,10 +3,9 @@
 #include "playerShip.h"
 
 
-class ShipBattle : State{ 
+class ShipBattle : public State{ 
 
     private:
-        Player* player;
         vector<EnemyShip*> enemyList;
 
         bool canShoot;
@@ -15,33 +14,50 @@ class ShipBattle : State{
         int enemyTimer; //Timer for the enemy spawns
         
         ofSoundPlayer shipDestroyed;
-
+        string nextState;
 
     public:
+        Player* player;
         ShipBattle();
         void update();
         void draw();
         void reset();
-        void keyPress(int key);
+        void keyPressed(int key);
+        void keyReleased(int key);
 
         //----- Utility Methods -------
 
-        void wrapCoords(ofPoint &currentPos); //Method to always keep a ship inside the screen	
+        void setNextState(string nextState){
+            this->nextState = nextState;
+        }
+
+        string getNextState() {
+            return this->nextState;
+        }
+
+        void wrapCoords(ofPoint &currentPos); // Method to always keep a ship inside the screen	
 		
 		void updateBullets();
 		void draw_bullets();
 		
-		void drawEnemyBullets(EnemyShip* enemy);
 		void updateEnemyBullets(EnemyShip* enemy);
+		void drawEnemyBullets(EnemyShip* enemy);
 
-		bool bulletIsOutOfBounds(Projectiles p); //Method to handle the many projectiles that will be shot
+		bool bulletIsOutOfBounds(Projectiles p); // Method to handle the many projectiles that will be shot
 
         ofVec2f getRandomEdgePoint();
 
         void shotTimer(int time);
 
-        ~ShipBattle(){
-            
+        ~ShipBattle(){}
+
+        void healthBar(int currHealth, int maxHealth){ 
+            ofNoFill();
+            ofDrawRectangle(10, 40, maxHealth *2, 20);
+            ofFill();
+            ofSetColor(ofColor::green);
+            ofDrawRectangle(10, 40, currHealth *2, 20);
+            ofSetColor(ofColor::white);
         }
 };
 
