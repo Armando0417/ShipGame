@@ -3,14 +3,16 @@
 ShipBattle::ShipBattle(){
     this->player = new Player(ofGetWidth()/2, ofGetHeight()/2);
     this->enemyTimer = 0;
+    this->score = 0;
     shipDestroyed.load("bin\\data\\Sounds\\shipExplosion.wav");
-
+    font.load("bin\\data\\Fonts\\Orbitron.ttf", 20, true, true, false, 0.3, 0);
+    
 }
 
 ofVec2f ShipBattle::getRandomEdgePoint(){
     int edge = ofRandom(4);  // Select a random edge (0: top, 1: right, 2: bottom, 3: left)
     float x, y;
-    
+
     if (edge == 0) {  // Top edge
         x = ofRandomWidth();
         y = 0;
@@ -32,7 +34,7 @@ ofVec2f ShipBattle::getRandomEdgePoint(){
 void ShipBattle::update(){
 //Enemy spawn logic
     enemyTimer += 1;
-    if(enemyTimer % 100 == 0 && enemyList.size() < 10){
+    if( enemyTimer % 100 == 0 && enemyList.size() < 10 ){     // increase in difficulty can be changed here
         ofPoint randPosition = getRandomEdgePoint();
         EnemyShip* tempEnemy = new EnemyShip(randPosition.x, randPosition.y, 2.5);
         enemyList.push_back(tempEnemy);
@@ -48,18 +50,20 @@ void ShipBattle::update(){
 
 
 //Movement and hit detection for enemies
-    for(int i = 0; i < enemyList.size(); i++){
+    for(unsigned int i = 0; i < enemyList.size(); i++){
         EnemyShip* enemy = enemyList[i];
         enemy->update(this->player->pos);
         int index = i;
         for(Projectiles p : this->player->bullets){
             if(enemy->enemyHitBox.isHit(p)){
                 if(player->health + 5 >= 100){
-                    player->health = 100;    
+                    player->health = 100;  
                 }
                 else{
                     player->health = player->health + 5; 
                 }
+
+                score += 20;  //Score system
                 enemyList.erase(enemyList.begin() + index);
                 shipDestroyed.play();
             }
@@ -109,6 +113,11 @@ void ShipBattle::shotTimer(int time){
 
 void ShipBattle::draw(){
     ofSetBackgroundColor(ofColor::black);
+    
+    // ofDrawBitmapString(score, 10, 10);
+    ofSetColor(ofColor::white); // Set text color to white
+    font.drawString("SCORE " + to_string(score), ofGetWidth() / 2 - 50, 50);
+
     player->draw();
     if(shot) draw_bullets();
     for(EnemyShip* e : enemyList){

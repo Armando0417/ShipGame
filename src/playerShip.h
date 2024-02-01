@@ -123,10 +123,10 @@ class Player{
 
     //Function that will process if the value of the keys inside the Map are being pressed
         void processPressedKeys() {
-            if(keyMap['w']) movement('w');
-            if(keyMap['s']) movement('s');
-            if(keyMap['d']) movement('d');
-            if(keyMap['a']) movement('a');
+            if(keyMap['w'] || keyMap['W']) movement('w');
+            if(keyMap['s'] || keyMap['S']) movement('s');
+            if(keyMap['d'] || keyMap['D']) movement('d');
+            if(keyMap['a'] || keyMap['A']) movement('a');
 
             if(keyMap[' ']) {
                 shoot();

@@ -3,7 +3,7 @@
 #include "playerShip.h"
 
 
-class ShipBattle : public State{ 
+class ShipBattle : public State { 
 
     private:
         vector<EnemyShip*> enemyList;
@@ -11,13 +11,21 @@ class ShipBattle : public State{
         bool canShoot;
         bool shot;
         int timer;
-        int enemyTimer; //Timer for the enemy spawns
+        int enemyTimer; // Timer for the enemy spawns
+
+        int score;
         
         ofSoundPlayer shipDestroyed;
         string nextState;
 
     public:
+        
         Player* player;
+
+        ofTrueTypeFont font;
+        
+
+
         ShipBattle();
         void update();
         void draw();
@@ -27,13 +35,12 @@ class ShipBattle : public State{
 
         //----- Utility Methods -------
 
-        void setNextState(string nextState){
-            this->nextState = nextState;
-        }
+        void setNextState(string nextState){ this->nextState = nextState; }
 
-        string getNextState() {
-            return this->nextState;
-        }
+        string getNextState() { return this->nextState; }
+
+        
+
 
         void wrapCoords(ofPoint &currentPos); // Method to always keep a ship inside the screen	
 		
