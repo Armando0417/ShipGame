@@ -1,5 +1,13 @@
 #include "State.h"
 #include "enemy.h"
+
+
+#include "EnemyCruiser.h"
+#include "EnemyVanguard.h"
+
+#include "ORT.h"
+#include "UFO.h"    
+
 #include "playerShip.h"
 
 
@@ -13,17 +21,22 @@ class ShipBattle : public State {
         int timer;
         int enemyTimer; // Timer for the enemy spawns
 
-        int score;
-        
+        bool bossIsActive;
+        unsigned int bossIndex;
+        vector<Boss*> bossList;
+
+        int playerScore;
+        int killspreeTimer;
+        bool killspree;
+
         ofSoundPlayer shipDestroyed;
         string nextState;
 
-    public:
-        
+    public:   
         Player* player;
 
         ofTrueTypeFont font;
-        
+        ofImage backgroundImage;
 
 
         ShipBattle();
@@ -32,14 +45,19 @@ class ShipBattle : public State {
         void reset();
         void keyPressed(int key);
         void keyReleased(int key);
+        void mousePressed(int mouseX, int mouseY, int button);
 
         //----- Utility Methods -------
 
         void setNextState(string nextState){ this->nextState = nextState; }
 
         string getNextState() { return this->nextState; }
-
         
+        
+        void activateBoss();
+        void bossActivationAnimation(); //For the warning before the boss appears
+
+
 
 
         void wrapCoords(ofPoint &currentPos); // Method to always keep a ship inside the screen	
@@ -66,6 +84,23 @@ class ShipBattle : public State {
             ofDrawRectangle(10, 40, currHealth *2, 20);
             ofSetColor(ofColor::white);
         }
+
+        void killSpreeTimer(int currTimer, int maxTimer) {
+            ofNoFill();
+            ofDrawRectangle(10, 80, maxTimer *2, 10);
+            ofFill();
+            ofSetColor(ofColor::red);
+            ofDrawRectangle(10, 80, currTimer *2, 10);
+            ofSetColor(ofColor::white);
+        }
+        
+        double killSpreeMode();
+
+        double scoreMultiplier();
+
+
+
+
 };
 
 

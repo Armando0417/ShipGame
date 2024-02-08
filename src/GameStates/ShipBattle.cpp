@@ -3,10 +3,21 @@
 ShipBattle::ShipBattle(){
     this->player = new Player(ofGetWidth()/2, ofGetHeight()/2);
     this->enemyTimer = 0;
-    this->score = 0;
+    this->playerScore = 0;
+    this->killspreeTimer = 0;
+    bossIsActive = false;
+    bossIndex = 0;
+
+
     shipDestroyed.load("bin\\data\\Sounds\\shipExplosion.wav");
     font.load("bin\\data\\Fonts\\Orbitron.ttf", 20, true, true, false, 0.3, 0);
+    backgroundImage.load("bin\\data\\Menu Images\\BattleArea.jpg");
+
+    music.load("bin\\data\\Sounds\\Cosmic Sea of Trees.mp3");
     
+
+    // music.play();
+
 }
 
 ofVec2f ShipBattle::getRandomEdgePoint(){
@@ -31,16 +42,62 @@ ofVec2f ShipBattle::getRandomEdgePoint(){
 
 }
 
+/**
+ * Update function for managing enemy spawn, player movement, enemy movement and hit detection, bullet updates, and state switching.
+ */
 void ShipBattle::update(){
-//Enemy spawn logic
+    //Enemy spawn logic
+
     enemyTimer += 1;
-    if( enemyTimer % 100 == 0 && enemyList.size() < 10 ){     // increase in difficulty can be changed here
-        ofPoint randPosition = getRandomEdgePoint();
-        EnemyShip* tempEnemy = new EnemyShip(randPosition.x, randPosition.y, 2.5);
-        enemyList.push_back(tempEnemy);
-        enemyTimer = 0;
+
+    if(killspreeTimer > 0) killspreeTimer -= 1;  
+
+    // Enemy spawn logic
+   if(playerScore > 10000 && !bossIsActive) {   //ORT UFO Boss Encounter
+        // music.stop();
+        activateBoss();
     }
 
+    if(playerScore > 25000 && !bossIsActive) {   //ORT Xibalba Boss Encounter
+        activateBoss();
+    }
+
+
+    if (playerScore > 20 && !bossIsActive) {
+        ORT* ORT_Boss = new ORT(0, ofGetHeight() / 2, "ORT");
+        // music.stop();
+        // ofSleepMillis(1000);
+        // UFO* UFO_ORT = new UFO(ofGetWidth()/2 - 100, 20, "Galactica Supercell ORT");
+        enemyList.push_back(ORT_Boss);
+        // enemyList.push_back(UFO_ORT);
+        // bossList.push_back(UFO_ORT);
+        bossIsActive = true; 
+    }
+
+    if(playerScore < 100) {
+        if( enemyTimer % 100 == 0 && enemyList.size() < 10 ) {     // increase in difficulty can be changed here
+            ofPoint randPosition = getRandomEdgePoint(); 
+            EnemyShip* tempEnemy = new EnemyCruiser(randPosition.x, randPosition.y);
+            enemyList.push_back(tempEnemy);
+            enemyTimer = 0;
+        }
+    }
+
+    else {
+
+        if( enemyTimer % 50 == 0 && enemyList.size() < 20 ) { 
+            
+            // if(!bossIsActive){
+
+            ofPoint randPosition = getRandomEdgePoint();
+            EnemyShip* tempEnemy = new EnemyVanguard(randPosition.x, randPosition.y);
+            enemyList.push_back(tempEnemy);
+            enemyTimer = 0;
+            }    // increase in difficulty can be changed here
+        }
+
+        
+    
 
 //Movement logic for player 
     this->player->processPressedKeys();
@@ -53,43 +110,54 @@ void ShipBattle::update(){
     for(unsigned int i = 0; i < enemyList.size(); i++){
         EnemyShip* enemy = enemyList[i];
         enemy->update(this->player->pos);
-        int index = i;
-        for(Projectiles p : this->player->bullets){
-            if(enemy->enemyHitBox.isHit(p)){
-                if(player->health + 5 >= 100){
+        
+        unsigned int index = i; 
+        
+
+        for (Projectiles p : this->player->bullets) {
+            
+               if(enemy->getHitBox()->isHit(p)){
+                
+                if(player->health + 5 >= 100) {
                     player->health = 100;  
                 }
-                else{
-                    player->health = player->health + 5; 
+
+                else {
+                    player->health = player->health + 3.0;  //Healing once you kill an enemy 
                 }
 
-                score += 20;  //Score system
-                enemyList.erase(enemyList.begin() + index);
-                shipDestroyed.play();
+                enemy->takeDamage(p.getDamage());
+
+                if(enemy->isDead()) {   // Remove the enemy from the list
+                    enemyList.erase(enemyList.begin() + index);
+                    shipDestroyed.play();
+                    playerScore += 20 * scoreMultiplier() * killSpreeMode();  //Score system
+                    this->killspreeTimer = 150;
+                }
+
             }
         }
     }
 
 // Section for Updating bullets:
+    
     //player projectiles
     if(this->player->bullets.size() > 0) {
         updateBullets();
     } 
-    shotTimer(10);
+    shotTimer(1);
 
     //enemy projectiles
     for(EnemyShip* enemy : enemyList){
-        enemy->shotTimer++;
         updateEnemyBullets(enemy);
-        for(Projectiles p : enemy->enemyBullets){
+        for(Projectiles p : enemy->getBullets()){
             if(player->hitBox.isHit(p)){
                 if(player->health > 0){
-                    if(player->health < 10){
-                        player->health -= player->health;
+                    if (player->health < 10) {
+                        player->health -= player->health;   // To not go below 0
                     }
-                    else{
+                    else {
                         player->health = player->health - 10;
-
                     }
                 }
             }
@@ -113,21 +181,28 @@ void ShipBattle::shotTimer(int time){
 
 void ShipBattle::draw(){
     ofSetBackgroundColor(ofColor::black);
-    
-    // ofDrawBitmapString(score, 10, 10);
+    backgroundImage.draw(0, 0, ofGetWidth(), ofGetHeight());
+
     ofSetColor(ofColor::white); // Set text color to white
-    font.drawString("SCORE " + to_string(score), ofGetWidth() / 2 - 50, 50);
+    font.drawString("SCORE " + to_string(playerScore), ofGetWidth() / 2 - 50, 50);
+
+
+    if(bossIsActive){
+        // font.drawString(bossList[bossIndex]->getName(), ofGetWidth() / 2 - 50, ofGetHeight() * 3/4 - 20);
+    }
+
 
     player->draw();
     if(shot) draw_bullets();
     for(EnemyShip* e : enemyList){
         e->draw();
-        if(e->enemyBullets.size() > 0){
+        if(e->getBullets().size() > 0){
             drawEnemyBullets(e);
         }
     }
 
     healthBar(player->health, 100);
+    killSpreeTimer(this->killspreeTimer, 150);
 }   
 
 void ShipBattle::reset(){
@@ -136,15 +211,18 @@ void ShipBattle::reset(){
 }
 
 void ShipBattle::keyPressed(int key){
-        player->addPressedKey(key);
-        // if(key == ' '){
-        //     player->shoot();
-        // }
+    player->addPressedKey(key);
 }
 
+
 void ShipBattle::keyReleased(int key){
-       this->player->keyMap[key] = false;
+        key = tolower(key);
+        this->player->keyMap[key] = false;
 }
+void ShipBattle::mousePressed(int x, int y, int button){
+    
+}
+
 
 void ShipBattle::wrapCoords(ofPoint &currentPos){
     if(currentPos.x < 0.0) 
@@ -167,7 +245,7 @@ void ShipBattle::draw_bullets(){
 }
 
 void ShipBattle::drawEnemyBullets(EnemyShip* enemy){
-    for(Projectiles p : enemy->enemyBullets){
+    for(Projectiles p : enemy->getBullets()){
         p.draw();
     }
 }
@@ -183,11 +261,11 @@ void ShipBattle::updateBullets(){
 }
 
 void ShipBattle::updateEnemyBullets(EnemyShip* enemy){
-    for (unsigned int i = 0; i < enemy->enemyBullets.size(); i++) {
-       enemy->enemyBullets[i].update();
+    for (unsigned int i = 0; i < enemy->getBullets().size(); i++) {
+       enemy->getBullets()[i].update();
 
-        if (bulletIsOutOfBounds(enemy->enemyBullets[i])) {
-            enemy->enemyBullets.erase(enemy->enemyBullets.begin() + i);
+        if (bulletIsOutOfBounds(enemy->getBullets()[i])) {
+            enemy->getBullets().erase(enemy->getBullets().begin() + i);
         }
     }
 }
@@ -200,3 +278,27 @@ bool ShipBattle::bulletIsOutOfBounds(Projectiles p){
 
 }
 
+double ShipBattle::killSpreeMode() {
+    if(this->killspreeTimer > 0) return 1.5;
+    else return 1.0;
+}
+
+double ShipBattle::scoreMultiplier() {
+    if (playerScore >= 350) return 3.5;
+    
+    else if (playerScore >= 200) return 2.5;
+    
+    else if (playerScore >= 100) return 1.5; 
+    
+    else return 1.0; // Default multiplier
+    
+}
+
+void ShipBattle::activateBoss(){
+    if (bossIndex < bossList.size()) {
+        // Activate the boss
+        enemyList.push_back(bossList[bossIndex]);
+        bossIsActive = true;
+        bossIndex++;
+    }
+}
