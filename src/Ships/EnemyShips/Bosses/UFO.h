@@ -1,3 +1,4 @@
+#pragma once
 #include "Boss.h"
 
 class UFO : public Boss {

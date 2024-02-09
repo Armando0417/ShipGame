@@ -3,10 +3,6 @@
 ORT::ORT(int xpos, int ypos, string name) : Boss(xpos, ypos,0.5, 500, name) {
     enemyShipSprite.load("bin\\data\\CompressedImages\\ORT_Xibalba-min.png");
     enemyHitBox = new HitBox(pos, enemyShipSprite.getWidth() * 0.05, enemyShipSprite.getHeight() * 0.03);
-    
-    bossOST.load("bin\\data\\Sounds\\ORT Xibalba.mp3");
-    bossOST.play();
-
 
 }
     
@@ -60,5 +56,6 @@ void ORT::shoot() {
         bullet.setColors(ofColor::red, ofColor::orange); // Set desired colors
         enemyBullets.push_back(bullet);
     }
+    SoundManager::playSong("bulletSound", false);
 }
 

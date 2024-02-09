@@ -1,4 +1,5 @@
 #include "State.h"
+#include "EnemyManager.h"
 #include "enemy.h"
 
 
@@ -19,15 +20,9 @@ class ShipBattle : public State {
         bool canShoot;
         bool shot;
         int timer;
-        int enemyTimer; // Timer for the enemy spawns
-
-        bool bossIsActive;
-        unsigned int bossIndex;
-        vector<Boss*> bossList;
 
         int playerScore;
         int killspreeTimer;
-        bool killspree;
 
         ofSoundPlayer shipDestroyed;
         string nextState;
@@ -53,10 +48,7 @@ class ShipBattle : public State {
 
         string getNextState() { return this->nextState; }
         
-        
-        void activateBoss();
-        void bossActivationAnimation(); //For the warning before the boss appears
-
+    
 
 
 
@@ -64,13 +56,7 @@ class ShipBattle : public State {
 		
 		void updateBullets();
 		void draw_bullets();
-		
-		void updateEnemyBullets(EnemyShip* enemy);
-		void drawEnemyBullets(EnemyShip* enemy);
 
-		bool bulletIsOutOfBounds(Projectiles p); // Method to handle the many projectiles that will be shot
-
-        ofVec2f getRandomEdgePoint();
 
         void shotTimer(int time);
 
@@ -98,7 +84,7 @@ class ShipBattle : public State {
 
         double scoreMultiplier();
 
-
+        void removeMarkedPlayerBullets();
 
 
 };

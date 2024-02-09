@@ -1,6 +1,7 @@
 #include "EnemyCruiser.h"
 
-EnemyCruiser::EnemyCruiser(int xpos, int ypos) : EnemyShip(xpos, ypos, 1.0, 10) {
+EnemyCruiser::EnemyCruiser(int xpos, int ypos) : EnemyShip(xpos, ypos, 1.0, 10, 50) {
+    amIBoss = false;
     enemyShipSprite.load("bin\\data\\CompressedImages\\EnemyCruiser-min.png");
     enemyHitBox = new HitBox(pos, enemyShipSprite.getWidth() * 0.05, enemyShipSprite.getHeight() * 0.03);
 }

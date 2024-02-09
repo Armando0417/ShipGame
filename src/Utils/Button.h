@@ -1,6 +1,6 @@
 #pragma once
 #include "ofMain.h"
-
+#include "SoundManager.h"
 
 class Button {
     private:

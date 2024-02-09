@@ -2,10 +2,11 @@
 
 IntroState::IntroState(){
     titleImage.load("bin\\data\\Menu Images\\introWallpaper.jpg");
-    music.load("bin\\data\\Sounds\\Great Void Sea Battle.mp3");
-    music.setVolume(0.1);
-    music.play();
     
+    SoundManager::setVolume("intro", 0.1);
+    SoundManager::playSong("intro", true);
+
+
     Button* PlayButton = new Button(ofGetWidth()/2 - 100, ofGetHeight()/2, 200, 50, "", "Play");
     Button* PlayButton2 = new Button(ofGetWidth()/2 - 100, ofGetHeight()/2 + 100, 200, 50, "", "Hey There!");
 
@@ -16,13 +17,14 @@ IntroState::IntroState(){
 
 void IntroState::update() {
     if(buttons[0]->wasPressed()){
-        music.stop();
+        SoundManager::stopSong("intro");
+        SoundManager::playSong("battle", true);
+        SoundManager::setVolume("battle", 0.1);
         this->setNextState("BattleState");
         this->setFinished(true);
     }
 
-   
-   
+
    for(Button* button : buttons) {
         button->update();
     }

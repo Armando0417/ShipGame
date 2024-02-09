@@ -3,8 +3,7 @@
 
 UFO::UFO(int xpos, int ypos, string name) : Boss(xpos, ypos, 0.5, 500, name) {
     enemyShipSprite.load("bin\\data\\ShipModels\\ORT_UFO_BOSS.png");
-    // enemyHitBox = new HitBox(pos, enemyShipSprite.getWidth() * 0.60, enemyShipSprite.getHeight() * 0.5);
-    bossOST.load("bin\\data\\Sounds\\ORT_UFO.mp3");
+    enemyHitBox = new HitBox(pos, enemyShipSprite.getWidth() * 0.60, enemyShipSprite.getHeight() * 0.5);
     radius = 50;
     moveRight = true;
     moveLeft = false;
@@ -12,9 +11,10 @@ UFO::UFO(int xpos, int ypos, string name) : Boss(xpos, ypos, 0.5, 500, name) {
 }
 
 void UFO::update(const ofPoint& playerPos) {
-    if(moveRight) pos.x += 5 * speed;
+    // Move UFO
+        if(moveRight) pos.x += 5 * speed;
 
-    if(moveLeft) pos.x -= 5 * speed;
+        if(moveLeft) pos.x -= 5 * speed;
 
     // Check if UFO is at the left edge, change direction to move right
     if (pos.x <= 0) {
@@ -29,6 +29,8 @@ void UFO::update(const ofPoint& playerPos) {
         moveRight = false;
         moveLeft = true;
     }
+
+    this->enemyHitBox->box.setPosition(pos.x - 15, pos.y - 15);
 
     // Shoot bullets in a semi-circular motion
     if (shotTimer % 60 == 0) { // Adjust the value for the frequency of shooting
@@ -67,8 +69,9 @@ void UFO::shoot() {
     const float angleStep = 30.0; // Degrees between each bullet
 
     for (int i = 0; i < numBullets; ++i) {
-        float angle = i * angleStep;
-
+        float angle = angleStep + (i - numBullets / 2) * angleStep;
+        // Bullet creation code remains the same
+  
         // Calculate the position offset based on the angle (assuming circular pattern)
         float offsetX = radius * cos(ofDegToRad(angle));
         float offsetY = radius * sin(ofDegToRad(angle));
@@ -78,4 +81,5 @@ void UFO::shoot() {
         bullet.setColors(ofColor::red, ofColor::orange); // Set desired colors
         enemyBullets.push_back(bullet);
     }
+
 }

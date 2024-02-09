@@ -1,3 +1,4 @@
+#pragma once
 #include "enemy.h"
 
 class EnemyVanguard : public EnemyShip {

@@ -5,8 +5,10 @@
 #include <vector>
 #include "HitBox.h"
 
+
 class EnemyShip {
     protected:
+
         ofPoint pos;
         float speed;
         int health;
@@ -15,27 +17,33 @@ class EnemyShip {
         int shipOrientation;
         float rotationSpeed;
         int shotTimer;
+
+        int score; 
+        bool amIBoss;
+
         HitBox* enemyHitBox;
         vector<Projectiles> enemyBullets;
         ofImage enemyShipSprite;
+
+        // ofSoundPlayer shipDestroyed;
 
 
         bool dead;
 
     public:
         //Main Constructor for the EnemyShip class.
-        EnemyShip(int xpos, int ypos, float _speed, int health) {
+        EnemyShip(int xpos, int ypos, float _speed, int health, int score) {
             pos.x = xpos;
             pos.y = ypos;
             speed = _speed;
             this->health = health;
+            this->score = score;
             damping = 0.95;
             shipOrientation = 0;
             rotationSpeed = 1.0;
             shotTimer = 1; //Starts at 1 instead of 0 to avoid the ship shooting as soon as the ship spawns
             this->dead = false;
             // this->enemyHitBox = new HitBox(pos, enemyShipSprite.getWidth() * 0.05, enemyShipSprite.getHeight() * 0.03);
-
         }
 
         // Pure virtual method to be implemented by the individual enemy classes
@@ -45,9 +53,11 @@ class EnemyShip {
 
 
         // Getters
+        bool isBoss() { return amIBoss; }
         ofPoint& getPos() { return pos; }
         HitBox* getHitBox() { return enemyHitBox; }
         vector<Projectiles>& getBullets() { return enemyBullets; }
+        int getPoints() { return score; }
 
         //Other methods:
         virtual void takeDamage(int dmg) {
@@ -58,7 +68,19 @@ class EnemyShip {
             }
             health -= dmg;
         }
+
+        
         bool isDead() { return dead; }
+
+        void removeMarkedBullets(){
+            enemyBullets.erase(std::remove_if(enemyBullets.begin(), enemyBullets.end(),
+                                [](const Projectiles& p) { return p.markedForDeletion; }),
+                enemyBullets.end());
+        }
+    
+
+
+
 
     // Virtual destructor to ensure proper cleanup in derived classes
     virtual ~EnemyShip() {}

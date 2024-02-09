@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <unordered_map>
 #include "ofMain.h"
@@ -16,7 +17,8 @@ class Player{
         ofVec2f velocity;
         float accelerationAmount; 
         bool isMoving = false; // Flag to track if a movement key is being held
-        float damping = 0.95; // Damping factor for slowing down
+        float damping = 0.95;  // Damping factor for slowing down
+        int score;
 
         float lastShotTime;
         float shotCooldown;
@@ -42,7 +44,7 @@ class Player{
             this->shipSprite.load("bin\\data\\ShipModels\\shipModel2.png");
             this->shipOrientation = 0;
             accelerationAmount = 5.0; // Adjust the value as needed
-
+            score = 0;
             hitBox =  HitBox(pos, shipSprite.getWidth() * 0.25, shipSprite.getHeight() * 0.15);
             
             lastShotTime = 0;
@@ -53,7 +55,12 @@ class Player{
         Player(){
             Player(ofGetWidth()/2, ofGetHeight()/2);
         }
+
+
+        int getScore(){ return score; }
+        void setScore(int score) { this->score = score; }
   
+
     //Main method to draw the playerShip
         void draw() {
         // Draw the ship sprite with the calculated rotation
@@ -91,11 +98,6 @@ class Player{
         and places it into the bullets vector.  
     */
         void shoot(){ 
-            // Projectiles p = Projectiles(ofPoint(this->pos.x, this->pos.y), this->shipOrientation);
-            // p.setColors(ofColor::azure, ofColor::blueViolet);
-            // this->bullets.push_back(p);
-            // p.shotSound();
-
         // Calculate the current time
             float currentTime = ofGetElapsedTimef();
 
@@ -104,14 +106,21 @@ class Player{
                 Projectiles p = Projectiles(ofPoint(this->pos.x, this->pos.y), this->shipOrientation);
                 p.setColors(ofColor::azure, ofColor::blueViolet);
                 this->bullets.push_back(p);
-                p.shotSound();
+                SoundManager::playSong("bulletSound", false);
 
                 // Update the last shot time to the current time
                 lastShotTime = currentTime;
             }
         }
-
+        void removeMarkedBullets(){
+            bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
+                                [](const Projectiles& p) { return p.markedForDeletion; }),
+                bullets.end());
+        }
     
+
+
+
     //Section for movement ------------------------------------------       
         
     // Function to add a pressed key to the queue
@@ -167,4 +176,6 @@ class Player{
         }
 
     
+
+
 };

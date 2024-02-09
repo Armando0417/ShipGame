@@ -1,7 +1,8 @@
 #include "EnemyVanguard.h"
 
 
-EnemyVanguard::EnemyVanguard(int xpos, int ypos) : EnemyShip(xpos, ypos, 3.5, 10) {
+EnemyVanguard::EnemyVanguard(int xpos, int ypos) : EnemyShip(xpos, ypos, 3.5, 10, 75) {
+    amIBoss = false;
     enemyShipSprite.load("bin\\data\\ShipModels\\EnemyVanguard.png");
     enemyHitBox = new HitBox(pos, enemyShipSprite.getWidth() * 0.2, enemyShipSprite.getHeight() * 0.20);
 }

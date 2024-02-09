@@ -4,6 +4,7 @@
 // #include "playerShip.h"
 // #include "enemy.h"
 #include "State.h"
+#include "SoundManager.h"
 #include "ShipBattle.h"
 #include "introState.h"
 #include <string>

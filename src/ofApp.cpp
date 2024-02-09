@@ -8,6 +8,15 @@ void ofApp::setup(){
     ofSetEscapeQuitsApp(false);
 
 
+    //Sound
+    SoundManager::loadSong("intro", "bin\\data\\Sounds\\Great Void Sea Battle.mp3");
+    SoundManager::loadSong("battle", "bin\\data\\Sounds\\Cosmic Sea of Trees.mp3");
+    SoundManager::loadSong("shipExplosion", "bin\\data\\Sounds\\shipExplosion.wav");
+    SoundManager::loadSong("bulletSound", "bin\\data\\Sounds\\shootingSound.mp3");
+    SoundManager::loadSong("ORT_Xibalba", "bin\\data\\Sounds\\ORT Xibalba.mp3");
+    SoundManager::loadSong("ORT_UFO", "bin\\data\\Sounds\\ORT_UFO.mp3");
+    SoundManager::loadSong("button", "bin\\data\\Sounds\\buttonInteract.mp3");
+
 //States
     intro = new IntroState();
     battle = new ShipBattle();

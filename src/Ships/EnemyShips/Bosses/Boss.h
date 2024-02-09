@@ -5,14 +5,14 @@ class Boss : public EnemyShip {
     
     protected:
         int BossHealth;
-        ofSoundPlayer bossOST;
         string bossName;
         bool moveLeft;
         bool moveRight;
     public:
-        Boss(int xpos, int ypos, double speed, int health, string name) : EnemyShip(xpos, ypos, speed, health) {
+        Boss(int xpos, int ypos, double speed, int health, string name) : EnemyShip(xpos, ypos, speed, health, 10000) {
             bossName = name;
             BossHealth = health;
+            amIBoss = true;
         }
 
 

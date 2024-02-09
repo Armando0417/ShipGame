@@ -1,7 +1,7 @@
 #pragma once 
 #include "ofMain.h"
 #include "Button.h"
-
+#include "SoundManager.h"
 
 class State{ 
 

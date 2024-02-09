@@ -10,12 +10,13 @@ Button::Button(int xPos, int yPos, int width, int height, string imagePath, stri
     this->pressed = false;
 
     font.load("bin\\data\\Fonts\\Orbitron.ttf", 20, true, true, false, 0.3, 0);
-    music.load("bin\\data\\Sounds\\buttonInteract.mp3");
+
+    
 }
 
 void Button::setPressed (int mouseX, int mouseY) {
     if (mouseX > xPos && mouseX < xPos + width && mouseY > yPos && mouseY < yPos + height) {
-        music.play();
+        SoundManager::playSong("button", false);
         pressed = true;
     }
     else {
