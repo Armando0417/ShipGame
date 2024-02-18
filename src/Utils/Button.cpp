@@ -18,7 +18,6 @@ void Button::setPressed (int mouseX, int mouseY) {
         SoundManager::playSong("button", false);
         pressed = true;
     }
-
     else {
         pressed = false;
     }
@@ -54,7 +53,4 @@ void Button::draw() {
 }
 
 
-Button::~Button() {
-
-}
 

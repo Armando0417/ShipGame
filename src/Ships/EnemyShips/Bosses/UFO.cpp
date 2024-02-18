@@ -21,8 +21,6 @@ UFO::UFO(int xpos, int ypos, string name) : Boss(xpos, ypos, 0.5, 500, name) {
 
 void UFO::update(const ofPoint& playerPos) {
     
-    int i = 0; 
-    
     shootingPoint.x = (pos.x + enemyHitBox->box.getWidth() / 2) - 35;
     shootingPoint.y = pos.y + enemyHitBox->box.getHeight() /2;
     leftTriangleEdge.x = pos.x;

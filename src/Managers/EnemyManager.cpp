@@ -15,7 +15,7 @@
     vector<unique_ptr<EnemyShip>> EnemyManager::enemyList;
     vector<unique_ptr<EnemyShip>> EnemyManager::enemiesForDeletion;
     int EnemyManager::enemySpawnTimer = 0;
-    int EnemyManager::pointsPerUpdateCycle = 0;
+    int EnemyManager::pointsPerUpdateCycle = 100 + 14 * 30;
     int EnemyManager::killSpreeTimer = 0;
 
 

@@ -9,8 +9,8 @@
 class EnemyShip {
     
     protected:
-        ofPoint pos;
-        float speed;
+        ofPoint pos = ofPoint(0, 0);
+        float speed = 5.0000;
         int health;
         float damping;
         ofVec2f movement;
@@ -18,7 +18,7 @@ class EnemyShip {
         float rotationSpeed;
         int shotTimer;
         
-        string name;
+        string name = "Armando Cruz Romero was here";
 
         int score; 
         bool amIBoss;
@@ -28,7 +28,6 @@ class EnemyShip {
         ofImage enemyShipSprite;
 
         // ofSoundPlayer shipDestroyed;
-
 
         bool dead;
 
