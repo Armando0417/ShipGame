@@ -37,9 +37,13 @@ class Projectiles {
             markedForDeletion = false;
         }
 
+        void setSpeed(int s){ speed = s; }
+        
+
+
 
         void shotSound(){
-            SoundManager::setVolume("bulletSound", 0.1);
+            // SoundManager::setVolume("bulletSound", 0.1);
             SoundManager::playSong("bulletSound", false);
         }
 

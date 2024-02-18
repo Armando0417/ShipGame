@@ -3,10 +3,19 @@
 
 class UFO : public Boss {
         private:
-        double radius;
+                ofPoint shootingPoint;
+                ofPoint leftTriangleEdge;
+                ofPoint rightTriangleEdge;
+
+
+
+
+
+
+
         public:
-        UFO(int xpos, int ypos, string name);
-        void update(const ofPoint& playerPos) override;
-        void draw() override;
-        void shoot() override;
+                UFO(int xpos, int ypos, string name);
+                void update(const ofPoint& playerPos) override;
+                void draw() override;
+                void shoot() override;
 };

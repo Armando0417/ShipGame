@@ -1,8 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-// #include "playerShip.h"
-// #include "enemy.h"
 #include "State.h"
 #include "SoundManager.h"
 #include "ShipBattle.h"
@@ -30,7 +28,7 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-//-----Section for added / utility methods and variables for overall game logic----------------	
+//-----Section for the states-----	
 	//States:
 		State *currentState;
 		IntroState *intro;

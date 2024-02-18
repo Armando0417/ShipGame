@@ -1,92 +1,66 @@
+// Includes and dependencies
 #include "State.h"
 #include "EnemyManager.h"
 #include "enemy.h"
-
-
 #include "EnemyCruiser.h"
 #include "EnemyVanguard.h"
-
 #include "ORT.h"
-#include "UFO.h"    
-
+#include "UFO.h"
 #include "playerShip.h"
 
+/*
+    Note from author:
+        This is the core of the game. Essentially everything is here, and it's where most of my time was spent.
+        This game logic is split between two different classes: 
+            - ShipBattle (where the logic of what shows up and what happens)
+            - EnemyManager (where all of the logic for spawning and yes, managing enemies is)
+
+        Originally it was going to be all in this same class but your brain is not big enough to handle that (rephrase). 
+        I decided to break it up into two separate classes which is a lot easier to manage.
+
+*/
 
 class ShipBattle : public State { 
+private:
+    // Private members for internal state management
+    vector<EnemyShip*> enemyList; // List of all enemy ships currently in the game
+    int playerScore;              // The player's current score
+    int killspreeTimer;           // Timer for kill spree feature
+    string nextState;             // The next state of the game
+    ofTrueTypeFont font;          // Font for text rendering
+    ofImage backgroundImage;       // Background image of the game
 
-    private:
-        vector<EnemyShip*> enemyList;
+public:   
+    // Public members accessible outside the class
+    Player* player;                   // Pointer to the player's ship
+    bool displayBossWarning;          // Flag to display boss warning
 
-        bool canShoot;
-        bool shot;
-        int timer;
+    // Constructor and Destructor
+    ShipBattle();                     // Constructor declaration
+    ~ShipBattle(){}                   // Destructor declaration
 
-        int playerScore;
-        int killspreeTimer;
+    // Core functionality
+    void update();                    // Update game logic (main method)
+    void draw();                      // Draw game elements
 
-        ofSoundPlayer shipDestroyed;
-        string nextState;
+    // Input handling methods
+    void keyPressed(int key);         // Handle key press events
+    void keyReleased(int key);        // Handle key release events
+    void mousePressed(int mouseX, int mouseY, int button); // Handle mouse press events
 
-    public:   
-        Player* player;
+    // State management
+    void setNextState(string nextState); // Set the next game state
+    string getNextState();               // Get the next game state
 
-        ofTrueTypeFont font;
-        ofImage backgroundImage;
+    // Helper methods for game functionality
+    void wrapCoords(ofPoint &currentPos);  // Ensure ship stays within screen bounds
+    void updateBullets();                   // Update bullets' positions and states
+    void draw_bullets();                    // Draw bullets on the screen
 
-
-        ShipBattle();
-        void update();
-        void draw();
-        void reset();
-        void keyPressed(int key);
-        void keyReleased(int key);
-        void mousePressed(int mouseX, int mouseY, int button);
-
-        //----- Utility Methods -------
-
-        void setNextState(string nextState){ this->nextState = nextState; }
-
-        string getNextState() { return this->nextState; }
-        
-    
-
-
-
-        void wrapCoords(ofPoint &currentPos); // Method to always keep a ship inside the screen	
-		
-		void updateBullets();
-		void draw_bullets();
-
-
-        void shotTimer(int time);
-
-        ~ShipBattle(){}
-
-        void healthBar(int currHealth, int maxHealth){ 
-            ofNoFill();
-            ofDrawRectangle(10, 40, maxHealth *2, 20);
-            ofFill();
-            ofSetColor(ofColor::green);
-            ofDrawRectangle(10, 40, currHealth *2, 20);
-            ofSetColor(ofColor::white);
-        }
-
-        void killSpreeTimer(int currTimer, int maxTimer) {
-            ofNoFill();
-            ofDrawRectangle(10, 80, maxTimer *2, 10);
-            ofFill();
-            ofSetColor(ofColor::red);
-            ofDrawRectangle(10, 80, currTimer *2, 10);
-            ofSetColor(ofColor::white);
-        }
-        
-        double killSpreeMode();
-
-        double scoreMultiplier();
-
-        void removeMarkedPlayerBullets();
-
-
+    // UI and feedback methods
+    void healthBar(int currHealth, int maxHealth);          // Render the health bar
+    void killSpreeTimer(int currTimer, int maxTimer);       // Render the kill spree timer
+    double killSpreeMode();                                 // Logic for kill spree mode
+    double scoreMultiplier();                               // Calculate score multiplier based on game state
+    void removeMarkedPlayerBullets();                       // Remove bullets marked for deletion
 };
-
-

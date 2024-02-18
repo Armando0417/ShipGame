@@ -1,106 +1,153 @@
 #include "EnemyManager.h"
 
 // Define static members here
-    int EnemyManager::pointsPerUpdateCycle = 0;
-    int EnemyManager::killSpreeTimer = 0;
-    vector<EnemyShip*> EnemyManager::enemyList;
-    vector<Boss*> EnemyManager::bossList;
-    vector<EnemyShip*> EnemyManager::enemiesForDeletion;
+
+    //Boss related:
+    vector<unique_ptr<Boss>> EnemyManager::bossList;
+    bool EnemyManager::bossIsSpawning = false;
     bool EnemyManager::bossIsActive = false;
-    EnemyShip* EnemyManager::currentBoss = nullptr;
     bool EnemyManager::ufoSeen = false;
     bool EnemyManager::ortSeen = false;
+    string EnemyManager::whichBoss = "";
+    int EnemyManager::bossWarningTimer = 0;
+
+
+    vector<unique_ptr<EnemyShip>> EnemyManager::enemyList;
+    vector<unique_ptr<EnemyShip>> EnemyManager::enemiesForDeletion;
     int EnemyManager::enemySpawnTimer = 0;
+    int EnemyManager::pointsPerUpdateCycle = 0;
+    int EnemyManager::killSpreeTimer = 0;
+
 
 
 void EnemyManager::updateEnemies(Player* player){
-    // At the beginning of the update method
+    // Update timers and points for the current cycle
     decrementKillSpreeTimer();
     pointsPerUpdateCycle = 0;
+    enemySpawnTimer++;
 
-    //Spawning logic
-    enemySpawnTimer += 1;
+    if (bossWarningTimer > 0) {
+       decrementBossWarningTimer(); // reduce the boss warning timer
+
+        if(bossWarningTimer <= 0 && bossIsSpawning) {
+            // Time to spawn the boss
+            spawnBoss(whichBoss); // This actually spawns the boss in the world
+            cout << whichBoss << " should appear" << endl;
+        }
+    }
+
+    // Handle enemy spawning logic
     spawnEnemy(player);
 
-    //Movement and hit detection for enemies
-    for(unsigned int i = 0; i < enemyList.size(); i++){
-        EnemyShip* enemy = enemyList[i];
+    // Update each enemy's state and manage collisions
+    for (auto& enemy : enemyList) {
         enemy->update(player->pos);
-        updateEnemyBullets(enemy);
-        //Collisions for the player bullets
-        for (Projectiles& p : player->bullets) {
-            
-            if(!p.bulletIsOutOfBounds()) {
-                if(enemy->getHitBox()->isHit(p)){                
-                    player->health = min(player->health + 3.0, 100.0);  // Reward the player for hitting an enemy
-                    
-                    enemy->takeDamage(p.getDamage());
-
-                    if(enemy->isDead()) {   // Remove the enemy from the list
-                        SoundManager::playSong("shipExplosion", false);
-                        pointsPerUpdateCycle += enemy->getPoints();
-                        resetKillSpreeTimer(150);
-                        enemiesForDeletion.push_back(enemy);
-                        
-                    }
-                    p.markForDeletion();                    
-                }
-            }
-
-        }
-        enemy->removeMarkedBullets();
+        updateEnemyBullets(enemy.get());
     }
 
-
-    //Enemy projectiles
-    for(EnemyShip* enemy : enemyList){
-
-        for(Projectiles& p : enemy->getBullets()){
-            if(!p.bulletIsOutOfBounds()) {
-                if(player->hitBox.isHit(p)){
-                    if(player->health > 0){
-                        player->health = max(player->health - 10, 0);
-                    }
-                }
-            }
-            else {
-                p.markForDeletion();
-            }
-        }
+    for(auto& Boss : bossList){
+        Boss->update(player->pos);
+        updateEnemyBullets(Boss.get());
     }
 
-    // Update and manage bosses
-        for (unsigned int i = 0; i < bossList.size(); i++) {
-            Boss* boss = bossList[i];
-            boss->update(player->pos);
+    // Check and handle collisions
+    manageCollisions(player);
 
-            for (Projectiles& p : player->bullets) {
-                if (boss->getHitBox()->isHit(p)) {
-                    player->health = min(player->health + 5, 100); // Healing upon hitting the boss
-                    boss->takeDamage(p.getDamage());
 
-                    if (boss->isDead()) {
-                        SoundManager::playSong("shipExplosion", false);
-                        pointsPerUpdateCycle += boss->getPoints();
-                        resetKillSpreeTimer(150);
-                        bossHasDied();
-                        bossList.erase(bossList.begin() + i);
-                        delete boss; // Clean up the boss object
-                        i--; // Adjust index after removal
-                    }
-                }
-            }
-
-        // Update projectiles for bosses
-        updateEnemyBullets(boss);
-    }
-
-    // Delete marked bullets
-    player->removeMarkedBullets();
+    // Remove enemies that have been marked for deletion
     removeEnemies();
 
 
 }
+
+
+
+void EnemyManager::manageCollisions(Player* player) {
+    
+  // Handle collisions between player bullets and enemies
+    for (auto& enemy : enemyList) {
+
+        for (auto& bullet : player->bullets) {
+            
+            if (!bullet.bulletIsOutOfBounds() && enemy->getHitBox()->isHit(bullet)) {
+                player->health = min(player->health + 3.0, 100.0); // Reward the player
+                enemy->takeDamage(bullet.getDamage());
+                if (enemy->isDead()) {
+                    SoundManager::playSong("shipDestroyed", false);
+                    pointsPerUpdateCycle += enemy->getPoints();
+                    resetKillSpreeTimer(150);
+                    // enemiesForDeletion.push_back(move(enemy)); // Mark enemy for deletion
+                }
+                bullet.markForDeletion(); // Mark bullet for deletion
+            }
+        }
+    }
+    enemyList.erase(remove_if(enemyList.begin(), enemyList.end(), [](const unique_ptr<EnemyShip>& enemy){ return !enemy; }), enemyList.end());
+
+    // Handle collisions between enemy bullets and the player
+    for (auto& enemy : enemyList) {
+        for (auto& bullet : enemy->getBullets()) {
+            if (!bullet.bulletIsOutOfBounds() && player->hitBox.isHit(bullet)) {
+                player->health = max(player->health - 10.0, 0.0);
+                bullet.markForDeletion(); // Mark bullet for deletion
+            }
+        }
+    }
+
+
+    for (auto& Boss : bossList) {
+
+        for (auto& bullet : player->bullets) {
+            
+            if (!bullet.bulletIsOutOfBounds() && Boss->getHitBox()->isHit(bullet)) {
+                player->health = min(player->health + 3.0, 100.0); // Reward the player
+                Boss->takeDamage(bullet.getDamage());
+                if (Boss->isDead()) {
+                    SoundManager::stopSong(whichBoss);
+                    SoundManager::playSong("battle", false);
+                    bossHasDied();
+                    
+                    SoundManager::playSong("shipDestroyed", false);
+                        
+
+                    pointsPerUpdateCycle += Boss->getPoints();
+                    resetKillSpreeTimer(150);
+                    // enemiesForDeletion.push_back(move(Boss)); // Mark enemy for deletion
+                }
+                bullet.markForDeletion(); // Mark bullet for deletion
+            }
+        }
+    }
+
+    for (auto& Boss : bossList) {
+        for (auto& bullet : Boss->getBullets()) {
+            if (!bullet.bulletIsOutOfBounds() && player->hitBox.isHit(bullet)) {
+                player->health = max(player->health - 10.0, 0.0);
+                bullet.markForDeletion(); // Mark bullet for deletion
+            }
+        }
+    }
+
+
+    // Clean up bullets marked for deletion in both player and enemies
+    player->removeMarkedBullets();
+    for (auto& enemy : enemyList) {
+        enemy->removeMarkedBullets();
+    }
+
+}
+
+void EnemyManager::removeEnemies() {
+    enemyList.erase(remove_if(enemyList.begin(), enemyList.end(),
+        [](const unique_ptr<EnemyShip>& enemy) { return enemy->isDead(); }),
+        enemyList.end());
+
+    bossList.erase(remove_if(bossList.begin(), bossList.end(),
+        [](const unique_ptr<Boss>& boss) { return boss->isDead(); }),
+        bossList.end());
+}
+
+
 
 void EnemyManager::updateEnemyBullets(EnemyShip* enemy){
     for (unsigned int i = 0; i < enemy->getBullets().size(); i++) {
@@ -135,39 +182,50 @@ void EnemyManager::updateEnemyBullets(EnemyShip* enemy){
 void EnemyManager::decrementKillSpreeTimer() {
     if (killSpreeTimer > 0) {
         --killSpreeTimer;
+    
     }
 }
+
+void EnemyManager::decrementBossWarningTimer() {
+    if (bossWarningTimer > 0) {
+        --bossWarningTimer;
+    
+    }
+}
+
 
 int EnemyManager::getKillSpreeTimer() {
     return killSpreeTimer;
 }
 
+int EnemyManager::getBossWarningTimer() {
+    return bossWarningTimer;
+}
+
+
 void EnemyManager::resetKillSpreeTimer(int value) {
     killSpreeTimer = value;
 }
 
-void EnemyManager::drawEnemies(){
-    for(EnemyShip* e : enemyList){
-        e->draw();
+void EnemyManager::resetBossWarningTimer(int value) {
+    bossWarningTimer = value;
+}
 
-        if(e->getBullets().size() > 0){
-            drawEnemyBullets(e);
-        }
+
+void EnemyManager::drawEnemies() {
+    for (const auto& enemy : enemyList) {
+        enemy->draw();
+        drawEnemyBullets(*enemy);
     }
-    
-    // Draw bosses and their health bars
-    for (Boss* boss : bossList) {
+    for (const auto& boss : bossList) {
         boss->draw();
-        boss->showBossHealth(); // Call the method to show the boss's health bar
-        if(boss->getBullets().size() > 0){
-            drawEnemyBullets(boss);
-        }
+        drawEnemyBullets(*boss);
     }
 }
 
-void EnemyManager::drawEnemyBullets(EnemyShip* enemy){
-    for(Projectiles p : enemy->getBullets()){
-        p.draw();
+void EnemyManager::drawEnemyBullets(EnemyShip& enemy) {
+    for (Projectiles& bullet : enemy.getBullets()) {
+        bullet.draw();
     }
 }
 
@@ -178,84 +236,99 @@ void EnemyManager::spawnEnemy(Player* player){
     
     if (enemySpawnTimer >= spawnInterval) {
         ofPoint spawnLocation = getRandomEdgePoint();
-        EnemyShip* newEnemy = nullptr;
 
-            // Spawn regular enemy
-            if (currentScore > 10000) {
-                if (!ortSeen) {
-                    //Spawn ORT Xibalba
-                    if (!bossIsActive) {
-                        Boss* ORT_Xibalba = new ORT(0, ofGetHeight() / 2, "ORT Xibalba");
-                        ortSeen = true;
-                        spawnBoss(ORT_Xibalba);
-                    }
-                }
+        // Check if it's time to spawn a boss
+        if (!bossIsActive) { // Ensure no boss is currently active before spawning another
+            if (currentScore > 50000 && !ortSeen) {
+                // Spawn ORT Xibalba
+                cout << "Initiating boss Fight ORT Xibalba" << endl;
+                initiateBossSpawn("ORT Xibalba");
+                ortSeen = true; // Prevent multiple spawns
             }
-
-            if (currentScore > 5000) {
-                if(!ufoSeen){
-                    ufoSeen = true;
-                    Boss* UFO_ORT = new UFO(ofGetWidth()/2 - 100, 20, "Galactica Supercell ORT");
-                    spawnBoss(UFO_ORT);
-                }
+            else if (currentScore > 10000 && !ufoSeen) {
+                // Spawn UFO ORT
+                cout << "Initiating boss fight ORT UFO" << endl;
+                initiateBossSpawn("Galactica Supercell ORT");
+                ufoSeen = true; // Prevent multiple spawns
             }
-
-            if (currentScore > 1500) {
-                newEnemy = new EnemyVanguard(spawnLocation.x, spawnLocation.y);   
-            }
-
-            else{
-                newEnemy = new EnemyCruiser(spawnLocation.x, spawnLocation.y);
-            }
-
-            if (newEnemy != nullptr) {
-                enemyList.push_back(newEnemy);
-                enemySpawnTimer = 0; // Reset timer after spawning
-            }
-
         }
 
+        // Spawn regular enemies if no boss is being spawned
+        if (currentScore > 1500) {
+            enemyList.push_back(make_unique<EnemyVanguard>(spawnLocation.x, spawnLocation.y));
+        } 
+        else {
+            enemyList.push_back(make_unique<EnemyCruiser>(spawnLocation.x, spawnLocation.y));
+        }
 
+        enemySpawnTimer = 0; // Reset timer after spawning
+    }
+    
     }
 
-void EnemyManager::spawnBoss(Boss* boss) {
+bool EnemyManager::isBossSpawning() {
+    return bossIsSpawning && bossWarningTimer > 0;
+}
+
+void EnemyManager::updateBossWarningTimer(float deltaTime) {
+    if (bossWarningTimer > 0) {
+        bossWarningTimer -= deltaTime;
+    }
+}
+
+string EnemyManager::getSpawningBossType() {
+    return EnemyManager::whichBoss;
+}
+
+void EnemyManager::initiateBossSpawn(string bossType) {
     bossIsActive = true;
-    currentBoss = boss;
-    SoundManager::stopSong("battle");
-    SoundManager::playSong("ORT_UFO", true);
-    bossList.push_back(boss); // Add boss to the boss list
+    bossIsSpawning = true;
+    whichBoss = bossType;
+    SoundManager::playSong(bossType, true);
+    resetBossWarningTimer(200); // Set to desired warning duration in frames per second (60fps = 1sec)
+    // bossWarningTimer = 300; // Set to desired warning duration in frames per second (60fps = 1sec)
+}
+
+
+void EnemyManager::spawnBoss(const string& bossType) {
+    // Based on bossType, spawn the actual boss
+    if (bossType == "ORT Xibalba") {
+        ortSeen = true;   
+        auto boss = make_unique<ORT>(0, ofGetHeight()/2 -50, "ORT Xibalba");
+        bossList.push_back(move(boss));
+    } 
+    else if (bossType == "Galactica Supercell ORT") {
+        ufoSeen = true;
+        auto boss = make_unique<UFO>(ofGetWidth()/2, 30, "Galactica Supercell ORT");
+        bossList.push_back(move(boss));
+    }
+    // Reset the spawn timer and clear boss spawning flags
+    enemySpawnTimer = 0;
+    bossIsSpawning = false;
 }
 
 
 void EnemyManager::bossHasDied() {
     bossIsActive = false;
-    currentBoss = nullptr;
+    whichBoss = "";
 }
 
 int EnemyManager::whichSpawnInterval(int playerScore) {
     // Simplified example, adjust intervals as needed
+    if (!bossIsActive && ortSeen) return 5;
+    if (!bossIsActive && ufoSeen) return 10;
     if (bossIsActive) return 150; // Slower spawn rate if a boss is active
     if (playerScore < 1000) return 60; // Fast spawn rate for low scores
     if (playerScore < 5000) return 80; // Slower spawn as difficulty increases
+
+
     return 100; // Default slowest spawn rate for very high scores or when a boss is likely
 }
 
-
-void EnemyManager::cleanUp(){
-    // Clean up dynamically allocated memory, if any
-    for (auto& enemy : enemyList) {
-        delete enemy;
-    }
+void EnemyManager::cleanUp() {
+    // `unique_ptr` automatically deletes the objects when the vector is cleared or goes out of scope.
     enemyList.clear();
+    bossList.clear();
 }
 
-void EnemyManager::removeEnemies(){
-    for (EnemyShip* enemy : enemiesForDeletion) {
-        auto it = std::find(enemyList.begin(), enemyList.end(), enemy);
-        if (it != enemyList.end()) {
-            delete *it; // Assuming dynamic allocation
-            enemyList.erase(it);
-        }
-    }
-    enemiesForDeletion.clear(); // Clear the list after deletion
-}
+

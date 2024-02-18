@@ -22,19 +22,4 @@ class State{
         void setNextState(string nextState) { this->nextState = nextState; }        
         string getNextState(){ return this->nextState; }
 
-
-
-
-
-
-        void toggleMusic() {
-            // No music to play
-            if (!music.isLoaded()) return;
-            music.isPlaying() ? music.stop() : music.play();
-        }
-        
-
-        ~State(){
-
-        }
 };  

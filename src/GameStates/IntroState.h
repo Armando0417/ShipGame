@@ -4,7 +4,8 @@ class IntroState : public State{
     private:
         ofImage titleImage;
         vector<Button*> buttons;
-
+        ofTrueTypeFont font;
+        
     public:
         IntroState();
         void update();

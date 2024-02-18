@@ -4,6 +4,7 @@
 EnemyVanguard::EnemyVanguard(int xpos, int ypos) : EnemyShip(xpos, ypos, 3.5, 10, 75) {
     amIBoss = false;
     enemyShipSprite.load("bin\\data\\ShipModels\\EnemyVanguard.png");
+    enemyShipSprite.rotate90(2);
     enemyHitBox = new HitBox(pos, enemyShipSprite.getWidth() * 0.2, enemyShipSprite.getHeight() * 0.20);
 }
 

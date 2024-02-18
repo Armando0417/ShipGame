@@ -22,9 +22,7 @@ class HitBox{
         }
 
     /*
-        Method to check if a collision occurs.
-        @param Projectiles& bullets   -> passes a projectile to verify if it intersects the hitbox
-        @return bool                  -> true if collosion occurred
+        Method to check if a collision occurs. It takes a projectile and 
      */ 
         bool isHit(Projectiles& bullet){
             return box.inside(bullet.position.x, bullet.position.y);          
