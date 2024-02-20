@@ -23,7 +23,7 @@ void EnemyCruiser::update(const ofPoint& playerPos) {
     // Check if the ship should shoot
         if (shotTimer % 200 == 0) {
             shoot();
-            shotTimer = 0; //resets the timer
+            shotTimer = 0; // resets the timer
         }
 }
 
@@ -45,5 +45,5 @@ void EnemyCruiser::shoot() {
         Projectiles p = Projectiles(pos, shipOrientation + 90);
         p.setColors(ofColor::red, ofColor::orange);
         enemyBullets.push_back(p);
-        p.shotSound();
+        SoundManager::playSong("bulletSound", false);
 }

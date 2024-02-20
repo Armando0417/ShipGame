@@ -9,7 +9,7 @@ Button::Button(int xPos, int yPos, int width, int height, string imagePath, stri
     this->textToDisplay = text;
     this->pressed = false;
 
-    font.load("bin\\data\\Fonts\\Orbitron.ttf", 20, true, true, false, 0.3, 0);     // To make the text show pretty.
+    font.load("bin\\data\\Fonts\\Orbitron.ttf", 20, true, true, false, 0.3, 0); // To make the text show pretty.
 
 }
 
@@ -34,7 +34,7 @@ void Button::update() {
 
 void Button::draw() {
     ofImage img;
-
+    
     if(imagePath == "") {   // Default drawing method 
         ofSetColor(50, 50, 170);
         ofDrawRectangle(xPos, yPos, width, height);

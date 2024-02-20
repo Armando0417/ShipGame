@@ -44,5 +44,5 @@ void EnemyVanguard::shoot() {
     Projectiles p = Projectiles(pos, shipOrientation + 90);
     p.setColors(ofColor::red, ofColor::orange);
     enemyBullets.push_back(p);
-    p.shotSound();
+    SoundManager::playSong("bulletSound", false);
 }

@@ -45,14 +45,12 @@ class EnemyManager {
         static bool ortSeen;
 
     public:
-
         // Boss Management
         static bool isBossSpawning();
         static void initiateBossSpawn(string bossType); // Initiates the spawning of a boss (used for the warning)
         static void decrementBossWarningTimer();
         static int getBossWarningTimer();
         static void resetBossWarningTimer(int value);
-
 
         static string getSpawningBossType(); 
         static void updateBossWarningTimer(float deltaTime); 

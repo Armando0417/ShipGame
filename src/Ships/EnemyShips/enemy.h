@@ -27,8 +27,6 @@ class EnemyShip {
         vector<Projectiles> enemyBullets;
         ofImage enemyShipSprite;
 
-        // ofSoundPlayer shipDestroyed;
-
         bool dead;
 
     public:
@@ -44,7 +42,6 @@ class EnemyShip {
             rotationSpeed = 1.0;
             shotTimer = 1; //Starts at 1 instead of 0 to avoid the ship shooting as soon as the ship spawns
             this->dead = false;
-            // this->enemyHitBox = new HitBox(pos, enemyShipSprite.getWidth() * 0.05, enemyShipSprite.getHeight() * 0.03);
         }
 
         // Pure virtual method to be implemented by the individual enemy classes

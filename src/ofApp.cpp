@@ -5,7 +5,7 @@
 
 void ofApp::setup(){
     ofSetFrameRate(60); // Set frame rate for a smoother experience
-    ofSetEscapeQuitsApp(false );// Set 'ESC' key to not quit the app
+    ofSetEscapeQuitsApp(false);// Set 'ESC' key to not quit the app
 
     /*
         Sound Manager Setup:

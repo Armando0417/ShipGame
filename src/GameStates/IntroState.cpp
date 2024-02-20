@@ -1,9 +1,8 @@
 #include "IntroState.h"
-
+//Use maps instead of a vector
 IntroState::IntroState(){
     titleImage.load("bin\\data\\Menu Images\\introWallpaper.jpg");
     font.load("bin\\data\\Fonts\\Orbitron.ttf", 50, true, true, false, 0.3, 0);
-
 
     Button* PlayButton = new Button(ofGetWidth()/2 - 100, ofGetHeight()/2, 200, 50, "", "Play");
     Button* PlayButton2 = new Button(ofGetWidth()/2 - 100, ofGetHeight()/2 + 100, 200, 50, "", "Hey There!");
@@ -18,7 +17,6 @@ void IntroState::update() {
         this->setNextState("BattleState");
         this->setFinished(true);
     }
-
 
    for(Button* button : buttons) {
         button->update();

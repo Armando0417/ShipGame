@@ -10,10 +10,6 @@ UFO::UFO(int xpos, int ypos, string name) : Boss(xpos, ypos, 0.5, 500, name) {
     leftTriangleEdge = ofPoint(pos.x, enemyShipSprite.getHeight() * 2);
     rightTriangleEdge = ofPoint(pos.x + enemyShipSprite.getWidth(), enemyShipSprite.getHeight() * 2);
 
-
-
-
-
     moveRight = true;
     moveLeft = false;
 
@@ -80,10 +76,10 @@ void UFO::draw() {
     showBossHealth(); 
     
     // Draw lines from the UFO to the left and right edges
-        ofSetLineWidth(2); // Set line width for visibility
-        ofSetColor(ofColor::red); // Set line color to red for visibility
-        ofDrawLine(shootingPoint, leftTriangleEdge);
-        ofDrawLine(shootingPoint, rightTriangleEdge);
+        // ofSetLineWidth(2); // Set line width for visibility
+        // ofSetColor(ofColor::red); // Set line color to red for visibility
+        // ofDrawLine(shootingPoint, leftTriangleEdge);
+        // ofDrawLine(shootingPoint, rightTriangleEdge);
 
 
 }

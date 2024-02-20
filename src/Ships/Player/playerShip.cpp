@@ -90,7 +90,7 @@ void Player::processPressedKeys() {
     if(keyMap['a']) movement('a');
 
     if(keyMap[' ']) shoot();
-    
+
             
     if (!isMoving) {
         // Apply damping to gradually slow down the ship when no keys are being pressed

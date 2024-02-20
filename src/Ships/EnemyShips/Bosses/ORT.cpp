@@ -42,10 +42,10 @@ void ORT::draw() {
     enemyShipSprite.draw(-32, -32, 200, 200);
     ofPopMatrix();
     
-    //Uncomment this if you want to see the hitbox for the enemy
+    // Uncomment this if you want to see the hitbox for the enemy
         // enemyHitBox->draw();
+    
     showBossHealth();
-
 }
 
 

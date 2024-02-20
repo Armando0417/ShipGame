@@ -1,7 +1,7 @@
 #pragma once
 #include "Projectile.h"
 
-class HitBox{
+class HitBox {
 
     public:
         ofRectangle box; //will serve as the skeleton for the hitbox 

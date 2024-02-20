@@ -11,7 +11,6 @@
     string EnemyManager::whichBoss = "";
     int EnemyManager::bossWarningTimer = 0;
 
-
     vector<unique_ptr<EnemyShip>> EnemyManager::enemyList;
     vector<unique_ptr<EnemyShip>> EnemyManager::enemiesForDeletion;
     int EnemyManager::enemySpawnTimer = 0;
@@ -19,7 +18,7 @@
     int EnemyManager::killSpreeTimer = 0;
 
 
-
+// ================= Main Logic ====================
 void EnemyManager::updateEnemies(Player* player){
     // Update timers and points for the current cycle
     decrementKillSpreeTimer();
@@ -53,7 +52,6 @@ void EnemyManager::updateEnemies(Player* player){
     // Check and handle collisions
     manageCollisions(player);
 
-
     // Remove enemies that have been marked for deletion
     removeEnemies();
 
@@ -63,10 +61,9 @@ void EnemyManager::updateEnemies(Player* player){
 
 
 void EnemyManager::manageCollisions(Player* player) {
-    
+
   // Handle collisions between player bullets and enemies
     for (auto& enemy : enemyList) {
-
         for (auto& bullet : player->bullets) {
             
             if (!bullet.bulletIsOutOfBounds() && enemy->getHitBox()->isHit(bullet)) {
@@ -156,6 +153,7 @@ void EnemyManager::updateEnemyBullets(EnemyShip* enemy){
     }
 }
 
+//  =================== Utility Method ====================
  ofVec2f EnemyManager::getRandomEdgePoint() {
     int edge = ofRandom(4);  // Select a random edge (0: top, 1: right, 2: bottom, 3: left)
     float x, y;
@@ -179,6 +177,8 @@ void EnemyManager::updateEnemyBullets(EnemyShip* enemy){
 }
 
 
+
+// ==================== Timers and Reset ====================
 void EnemyManager::decrementKillSpreeTimer() {
     if (killSpreeTimer > 0) {
         --killSpreeTimer;
@@ -212,6 +212,7 @@ void EnemyManager::resetBossWarningTimer(int value) {
 }
 
 
+// ==================== Drawing ====================
 void EnemyManager::drawEnemies() {
     for (const auto& enemy : enemyList) {
         enemy->draw();
@@ -229,7 +230,7 @@ void EnemyManager::drawEnemyBullets(EnemyShip& enemy) {
     }
 }
 
-
+// ==================== Spawning Logic ====================
 void EnemyManager::spawnEnemy(Player* player){
     int currentScore = player->getScore();
     int spawnInterval = whichSpawnInterval(currentScore);
@@ -326,7 +327,6 @@ int EnemyManager::whichSpawnInterval(int playerScore) {
 }
 
 void EnemyManager::cleanUp() {
-    // `unique_ptr` automatically deletes the objects when the vector is cleared or goes out of scope.
     enemyList.clear();
     bossList.clear();
 }
